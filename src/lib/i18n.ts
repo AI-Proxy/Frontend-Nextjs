@@ -1,4 +1,4 @@
-import "server-only";
+"server-only";
 import { Locale, Dict, Replacements, i18n } from "@/i18n.config";
 
 const dictionaries = {
