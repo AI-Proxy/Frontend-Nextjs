@@ -23,10 +23,10 @@ export default function LocaleSwitcher({ currentLang }: Readonly<{ currentLang: 
     };
 
     return (
-        <Card>
+        <Card className="rounded-md">
             {i18n.locales.map((locale, i) => (
-                <Button className="" key={i} variant={locale === currentLang ? "default" : "ghost"} size="sm" asChild>
-                    <Link href={redirectedPathName(locale)}>{locale}</Link>
+                <Button className="w-7 h-7" key={i} variant={locale === currentLang ? "default" : "ghost"} size="sm" asChild>
+                    <Link className="text-xs" href={redirectedPathName(locale)}>{locale.toLocaleUpperCase()}</Link>
                 </Button>
             ))}
         </Card>

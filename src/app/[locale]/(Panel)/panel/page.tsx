@@ -5,15 +5,61 @@ import { Locale } from "@/i18n.config";
 import { getDir } from "@/lib/i18n";
 import { streamingFetch } from "@/lib/utils";
 import { useEffect, useRef } from "react";
-import { marked } from "marked";
+import { signal } from "@preact/signals-react";
+import { useSignals } from "@preact/signals-react/runtime";
 import hljs from "highlight.js";
 import { TbSend } from "react-icons/tb";
+import Message from "@/components/panel/chat/Message";
+
+const md = `
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+dsa
+`;
+const messages = signal<Array<{ role: string; content: string }>>([{ role: "user", content: md }]);
 
 export default function Page({ params }: Readonly<{ params: { locale: Locale } }>) {
+    useSignals();
     const dir = getDir(params.locale);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const textareaSpanRef = useRef<HTMLSpanElement>(null);
-    const msgBoxRef = useRef<HTMLDivElement>(null);
+    const messagesRef = useRef<HTMLDivElement>(null);
+    const scrollAreaRef = useRef<HTMLDivElement>(null);
+    const scrollElement = scrollAreaRef.current?.querySelector("div");
 
     const focusOnTextarea = () => textareaRef.current?.focus();
 
@@ -21,59 +67,57 @@ export default function Page({ params }: Readonly<{ params: { locale: Locale } }
         if (textareaSpanRef.current) textareaSpanRef.current.innerText = textareaRef.current?.value || "";
         if (textareaRef.current) textareaRef.current.style.height = `${textareaSpanRef.current?.clientHeight}px`;
     };
-    useEffect(() => {
+    const clearInputArea = () => {
+        if (textareaRef.current) textareaRef.current.value = "";
         expandInputArea();
-        hljs.highlightAll();
-    }, []);
+    };
 
     const submit = async () => {
         const promt = textareaRef.current?.value;
         if (!promt) return;
+        clearInputArea();
 
         const data = new FormData();
         data.append("promt", promt);
 
         // TODO : this does not have error handling
-        const response = await fetch("/api/chat", { method: "POST", body: data });
+        messages.value.push({ role: "user", content: promt });
+        messages.value.push({ role: "assistance", content: "" });
+        const response = await fetch("/api/v-chat-response", { method: "POST", body: data });
+        // const response = await fetch("/api/chat", { method: "POST", body: data });
         const reader = response.body?.getReader();
         for await (const chunk of streamingFetch(reader)) {
-            const oldChunk = msgBoxRef.current?.innerHTML;
-            if (msgBoxRef.current) msgBoxRef.current.innerHTML = oldChunk + chunk;
+            const lastMessage = messages.value.at(-1);
+            if (lastMessage) lastMessage.content += chunk;
+            messages.value = [...messages.value];
+            if (scrollElement) scrollElement.scrollTo({ top: scrollElement.scrollHeight });
         }
+
+        // TODO : we might not need this
+        hljs.highlightAll();
+        document.querySelectorAll("code").forEach((elm) => {
+            elm.classList.add("hljs");
+            elm.setAttribute("data-highlighted", "yes");
+        });
     };
+
+    useEffect(() => {
+        expandInputArea();
+        hljs.highlightAll();
+
+        // document.querySelectorAll("code").forEach((elm) => {
+        //     elm.classList.add("hljs");
+        //     elm.setAttribute("data-highlighted", "yes");
+        // });
+    }, []);
 
     return (
         <div className="flex flex-col items-center gap-2 w-full min-h-0 grow">
-            <ScrollArea className="w-full min-h-0 grow" dir={dir === "rtl" ? "rtl" : "ltr"}>
-                <div className="flex flex-col items-center justify-center w-full h-full">
-                    <div className="flex items-start gap-2 w-full max-w-screen-md pb-4">
-                        <span className="w-6 h-6 mt-1 rounded-full bg-blue-300 shrink-0"></span>
-                        <div className="flex flex-col gap-2 w-full max-w-screen-sm">
-                            <b className="text-lg ms-1">You</b>
-                            <div
-                                className="markdown w-screen max-w-full border p-2 rounded-lg whitespace-break-spaces"
-                                dir="auto"
-                                ref={msgBoxRef}
-                                dangerouslySetInnerHTML={{
-                                    __html: marked(`Here's how you can use it: \n 1. Create a new file named \`server.js\`.\n 2. Copy and paste the above code into \`server.js\`.\n 3. Open your terminal and navigate to the directory where \`server.js\` is located.\n 4. Run the following command to start the server: \`node server.js\`.\n\`\`\`javascript
-const http = require('http');
-
-const hostname = '127.0.0.1';
-const port = 3000;
-
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Hello, World!\n');
-});
-
-server.listen(port, hostname, () => {
-  console.log(\`Server running at http://\${hostname}:\${port}/\`);
-});\n\`\`\``),
-                                }}
-                            ></div>
-                        </div>
-                    </div>
+            <ScrollArea className="w-full min-h-0 grow" dir={dir === "rtl" ? "rtl" : "ltr"} ref={scrollAreaRef}>
+                <div className="flex flex-col items-center justify-center gap-6 w-full h-full" ref={messagesRef}>
+                    {messages.value.map((message, i) => (
+                        <Message text={message.content} role={message.role} key={i} />
+                    ))}
                 </div>
             </ScrollArea>
             <div className="flex items-center gap-1 w-full max-w-screen-md p-2 mb-3 rounded-lg bg-input shrink-0">
@@ -93,7 +137,7 @@ server.listen(port, hostname, () => {
                         ref={textareaSpanRef}
                     ></span>
                 </div>
-                <Button className="p-2 mt-auto mb-0 group" onClick={submit} disabled={!!(textareaRef.current?.value ?? false)}>
+                <Button className="p-2 mt-auto mb-0 group" onClick={submit}>
                     <TbSend className="animate-send" size="1.5rem" />
                 </Button>
             </div>

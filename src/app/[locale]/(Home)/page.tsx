@@ -25,7 +25,7 @@ const Home = async ({ params }: Readonly<{ params: { locale: Locale } }>) => {
                 <Button>Login</Button>
             </Link>
             <Link href={`${localePrefix}/panel`}>
-                <Button>پنل</Button>
+                <Button>Panel</Button>
             </Link>
         </>
     );
