@@ -30,7 +30,6 @@ const changeTheme = (oldTheme: themeType, newTheme: themeType) => {
 };
 
 const ThemeProvider = ({ children }: Readonly<{ children: React.ReactNode }>) => {
-
     // btw becuse we use classes and html attrebute to set the theme we dont need a context to share with whole app
     const [theme, dispatch] = useReducer(reducer, themeInitalValue);
 

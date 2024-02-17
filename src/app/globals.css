@@ -94,7 +94,7 @@
     font-size: revert;
     font-weight: revert;
     margin: revert;
-    padding: revert;
+    /* padding: revert; */
 }
 .markdown p {
     margin-block: 0.25rem;
@@ -126,8 +126,12 @@
     color: var(--accent-foreground);
     opacity: 0.75;
 }
-.markdown code {
-    border-radius: 0.75rem;
+.markdown .codeblock-head + code {
+    border-radius: 0 0 0.75rem 0.75rem;
+}
+.markdown pre {
+    display: grid;
+    width: 100%;
 }
 .markdown table {
     width: 100%;

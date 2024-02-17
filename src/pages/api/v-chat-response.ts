@@ -1,8 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { createReadStream } from "fs";
 
-export const config = { api: { bodyParser: false } };
-
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
     res.setHeader("Connection", "keep-alive");

@@ -10,6 +10,7 @@ import { getDir } from "@/lib/i18n";
 import { Locale } from "@/i18n.config";
 import SideMenu from "@/components/panel/SideMenu";
 import Header from "@/components/panel/Header";
+import { getChatList } from "@/lib/fetch";
 
 const inter = Inter({ subsets: ["latin"] });
 const vazirmatn = Vazirmatn({ subsets: ["latin"] });
@@ -19,16 +20,17 @@ export const metadata: Metadata = {
     description: "",
 };
 
-export default function RootLayout({ children, params }: Readonly<{ children: React.ReactNode; params: { locale: Locale } }>) {
+export default async function RootLayout({ children, params }: Readonly<{ children: React.ReactNode; params: { locale: Locale } }>) {
     const dir = getDir(params.locale);
+    const chatList = await getChatList();
 
     return (
         <html lang={params.locale} dir={dir}>
             <body>
                 <Provider>
-                    <div className="flex w-full flex-grow">
-                        <SideMenu />
-                        <main className="flex flex-col items-center justify-center max-h-full h-screen flex-grow">
+                    <div className="flex w-full h-full overflow-clip">
+                        <SideMenu data={{ chatList }} />
+                        <main className="flex flex-col h-screen max-h-full overflow-clip grow">
                             <Header currentLang={params.locale} />
                             {children}
                         </main>

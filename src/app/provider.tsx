@@ -1,6 +1,6 @@
 "use client";
-import UserContextProvider from "@/providers/UserContextProvider";
 // import MyThemeProvider from "@/providers/ThemeProvider";
+import UserContextProvider from "@/providers/UserContextProvider";
 import { ThemeProvider } from "next-themes";
 
 const Provider = ({ children }: Readonly<{ children: React.ReactNode }>) => {

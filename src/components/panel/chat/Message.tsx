@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useRef, useState } from "react";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
@@ -12,12 +13,6 @@ const Message = ({ text, role }: { text: string; role: string }) => {
     if (mounted) html = DOMPurify.sanitize(marked(text).toString());
 
     useEffect(() => {
-        // markdownRef.current?.querySelectorAll("code:not([data-highlighted])").forEach((elm) => {
-        // document.querySelectorAll("code").forEach((elm) => {
-        //     elm.classList.add("hljs");
-        //     elm.setAttribute("data-highlighted", "reset");
-        //     elm.setAttribute("data-highlighted", "yes");
-        // });
         hljs.highlightAll();
     }, [text]);
 
@@ -27,7 +22,8 @@ const Message = ({ text, role }: { text: string; role: string }) => {
             <div className="flex flex-col items-start gap-2 w-full max-w-screen-sm">
                 <b className={`text-lg px-1 ${role === "user" ? "me-auto" : "ms-auto"}`}>{role === "user" ? "You" : "Assistance"}</b>
                 <div
-                    className={`markdown w-screen max-w-full border p-2 rounded-lg whitespace-break-spaces ${role === "user" ? "" : "bg-secondary"}`}
+                    className={`markdown w-full border p-2 rounded-lg whitespace-break-spaces ${role === "user" ? "" : "bg-secondary"}`}
+                    style={{ wordBreak: "break-all" }}
                     ref={markdownRef}
                     dir="auto"
                     dangerouslySetInnerHTML={{ __html: html }}

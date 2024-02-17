@@ -1,4 +1,3 @@
-"use client";
 import { memo } from "react";
 import SwitchThemeButton from "@/components/SwitchThemeButton";
 import SwitchLangButton from "@/components/SwitchLangButton";
@@ -7,7 +6,7 @@ import { Locale } from "@/i18n.config";
 
 const Header = ({ currentLang }: { currentLang: Locale }) => {
     return (
-        <header className="flex items-center justify-between w-full p-4 py-2 shrink-0">
+        <header className="flex items-center justify-between w-full p-4 py-3.5 ps-11 md:ps-4 shrink-0">
             <Select defaultValue="gpt-4">
                 <SelectTrigger className="w-32">
                     <SelectValue placeholder="AI Model" />
@@ -17,7 +16,7 @@ const Header = ({ currentLang }: { currentLang: Locale }) => {
                     <SelectItem value="gpt-4">GPT-4</SelectItem>
                 </SelectContent>
             </Select>
-            <div className="flex items-center gap-2 mt-auto mb-4" dir="ltr">
+            <div className="flex items-center gap-2 mt-auto" dir="ltr">
                 <SwitchLangButton currentLang={currentLang} />
                 <SwitchThemeButton />
             </div>
