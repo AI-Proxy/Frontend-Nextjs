@@ -23,7 +23,6 @@ const Message = ({ text, role }: { text: string; role: string }) => {
                 <b className={`text-lg px-1 ${role === "user" ? "me-auto" : "ms-auto"}`}>{role === "user" ? "You" : "Assistance"}</b>
                 <div
                     className={`markdown w-full border p-2 rounded-lg whitespace-break-spaces ${role === "user" ? "" : "bg-secondary"}`}
-                    style={{ wordBreak: "break-all" }}
                     ref={markdownRef}
                     dir="auto"
                     dangerouslySetInnerHTML={{ __html: html }}

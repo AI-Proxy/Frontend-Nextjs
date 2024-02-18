@@ -9,12 +9,11 @@ import hljs from "highlight.js";
 import { TbSend } from "react-icons/tb";
 import Message from "@/components/panel/chat/Message";
 import { ChatMessages } from "@/lib/fetch";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 // adds copy option for code blocks
 hljs.addPlugin({
     "after:highlightElement": ({ el, result }) => {
-        console.log({ el, result });
         const div = document.createElement("div");
         const small = document.createElement("small");
         const button = document.createElement("button");
@@ -23,7 +22,7 @@ hljs.addPlugin({
         button.classList.add("underline");
         small.innerText = result.language || "";
         button.innerText = "Copy";
-        button.addEventListener("click", () => navigator.clipboard.writeText(result.code || ""));
+        button.addEventListener("click", async () => await navigator.clipboard.writeText(result.code || ""));
         div.append(small, button);
         el.parentElement?.prepend(div);
     },
@@ -34,12 +33,14 @@ const messages = signal<ChatMessages>([]);
 const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMessages }) => {
     useSignals();
     const pathname = usePathname();
+    const queryParams = useSearchParams();
+    const router = useRouter();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const textareaSpanRef = useRef<HTMLSpanElement>(null);
+    const endOfMsgSpan = useRef<HTMLSpanElement>(null);
     const messagesRef = useRef<HTMLDivElement>(null);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const scrollElement = scrollAreaRef.current?.querySelector("div");
-    messages.value = initialMessages;
 
     const focusOnTextarea = () => textareaRef.current?.focus();
     const textareaOnKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -75,24 +76,28 @@ const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMess
             const lastMessage = messages.value.at(-1);
             if (lastMessage) lastMessage.content += chunk;
             messages.value = [...messages.value];
-            if (scrollElement) scrollElement.scrollTo({ top: scrollElement.scrollHeight });
+            endOfMsgSpan.current?.scrollIntoView({ behavior: "instant" });
+            // if (scrollElement) scrollElement.scrollTo({ top: scrollElement.scrollHeight });
         }
+        setTimeout(() => {
+            endOfMsgSpan.current?.scrollIntoView({ behavior: "smooth" });
+        }, 100);
 
         // TODO : we might not need this
-        // hljs.highlightAll();
+        hljs.highlightAll();
     };
 
     useEffect(() => {
-        // TODO : if the pathname contains new chat trigger then read the promt from storage and submit it then clear the storage
-        // also clear the path or router from query params
-        // const promt = localStorage.getItem("promt");
-        // if (promt) submit(promt);
-    }, []);
+        messages.value = initialMessages;
+        setTimeout(() => {
+            endOfMsgSpan.current?.scrollIntoView({ behavior: "auto" });
+            hljs.highlightAll();
+        }, 100);
 
-    useEffect(() => {
-        // TODO : this might be an issue when code blocks in a chat is alot
-        hljs.highlightAll();
-    });
+        const initalPromt = queryParams?.get("promt");
+        window.history.pushState({}, "", pathname);
+        if (initalPromt) submit(initalPromt);
+    }, []);
 
     return (
         <>
@@ -101,6 +106,7 @@ const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMess
                     {messages.value.map((message, i) => (
                         <Message text={message.content} role={message.role} key={i} />
                     ))}
+                    <span ref={endOfMsgSpan}></span>
                 </div>
             </ScrollArea>
             <div className="w-full max-w-screen-md p-3 shrink-0">

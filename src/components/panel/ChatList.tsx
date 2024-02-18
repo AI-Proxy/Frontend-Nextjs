@@ -1,20 +1,20 @@
 "use client";
-import { ChatList as ChatListType, getChatList } from "@/lib/fetch";
+import { ChatList as ChatListType } from "@/lib/fetch";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { ScrollArea } from "@/components/ui/ScrollArea";
 import { TbDots } from "react-icons/tb";
 import { usePathname } from "next/navigation";
-import { Suspense, useContext, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { ChatsContext } from "@/providers/ChatsContextProvider";
 
 const ChatList = ({ chats }: { chats: ChatListType }) => {
     const pathname = usePathname();
     const chatsContext = useContext(ChatsContext);
-    chatsContext.dispatch({ type: "setInitalChats", chatList: chats });
     let chatList = chats;
-
+    
     useEffect(() => {
+        chatsContext.dispatch({ type: "setInitalChats", chatList: chats });
         chatList = chatsContext.value;
     }, []);
 

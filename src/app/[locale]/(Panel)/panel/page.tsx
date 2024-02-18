@@ -30,7 +30,7 @@ const page = () => {
 
     return (
         <ScrollArea className="w-full min-h-0 grow">
-            <div className="flex flex-col items-center gap-10 w-full grow">
+            <div className="flex flex-col items-center gap-10 w-full p-4 grow">
                 <div className="flex flex-col items-center gap-6 w-full py-20">
                     <Link className="flex items-baseline border border-neutral-400 border-opacity-30 rounded-lg" href="/">
                         <div className="bg-foreground text-background p-1 px-2 rounded-lg">
@@ -48,8 +48,8 @@ const page = () => {
                                     <span className={`w-16 h-16 rounded-lg ${d}`}></span>
                                     <strong className="-mb-2">GPT-4</strong>
                                     <small className="w-full max-h-10 opacity-70 overflow-hidden overflow-ellipsis">
-                                        OpenAI's most powerful model. Stronger than ChatGPT in quantitative questions (math and physics), creative writing, and
-                                        many other challenging tasks. Powered by GPT-4 Turbo with Vision.
+                                        OpenAI&apos;s most powerful model. Stronger than ChatGPT in quantitative questions math and physics, creative writing,
+                                        and many other challenging tasks. Powered by GPT-4 Turbo with Vision.
                                     </small>
                                 </Card>
                             </Link>
