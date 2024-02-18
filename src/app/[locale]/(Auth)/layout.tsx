@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/Toaster";
 import Provider from "@/app/provider";
 import { getDir } from "@/lib/i18n";
 import { Locale } from "@/i18n.config";
+import Link from "next/link";
 
 const inter = Inter({ subsets: ["latin"] });
 

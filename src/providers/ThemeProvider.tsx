@@ -1,5 +1,5 @@
 "use client";
-import { createContext, memo, useReducer, Dispatch, useEffect } from "react";
+import { createContext, useReducer, Dispatch, useEffect } from "react";
 
 type themeType = "light" | "dark";
 type actionType = { type: "toggle-theme" | "set-theme"; theme?: themeType };
@@ -42,4 +42,4 @@ const ThemeProvider = ({ children }: Readonly<{ children: React.ReactNode }>) =>
     return <themeContext.Provider value={{ class: theme, dispatch }}>{children}</themeContext.Provider>;
 };
 
-export default memo(ThemeProvider);
+export default ThemeProvider;

@@ -11,6 +11,7 @@ import { Locale } from "@/i18n.config";
 import SideMenu from "@/components/panel/SideMenu";
 import Header from "@/components/panel/Header";
 import { getChatList } from "@/lib/fetch";
+import { Suspense } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 const vazirmatn = Vazirmatn({ subsets: ["latin"] });
@@ -29,8 +30,10 @@ export default async function RootLayout({ children, params }: Readonly<{ childr
             <body>
                 <Provider>
                     <div className="flex w-full h-full overflow-clip">
-                        <SideMenu data={{ chatList }} />
-                        <main className="flex flex-col h-screen max-h-full overflow-clip grow">
+                        <Suspense fallback="loading">
+                            <SideMenu data={{ chatList }} />
+                        </Suspense>
+                        <main className="flex flex-col h-[100svh] max-h-full overflow-clip grow">
                             <Header currentLang={params.locale} />
                             {children}
                         </main>

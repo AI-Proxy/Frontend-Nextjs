@@ -12,9 +12,9 @@ const Message = ({ text, role }: { text: string; role: string }) => {
     let html = "";
     if (mounted) html = DOMPurify.sanitize(marked(text).toString());
 
-    useEffect(() => {
-        hljs.highlightAll();
-    }, [text]);
+    // useEffect(() => {
+    //     hljs.highlightAll();
+    // }, [text]);
 
     return (
         <div className={`flex items-start gap-2 w-full max-w-screen-md ${role === "user" ? "flex-row" : "flex-row-reverse"}`}>

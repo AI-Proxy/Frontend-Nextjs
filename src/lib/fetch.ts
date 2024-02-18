@@ -7,3 +7,8 @@ export const getChatList = async () => {
         .catch((err) => console.error({ err }));
     return await Q.json();
 };
+
+export type ChatMessages = Array<{ role: string; content: string }>;
+export const getChatMessages = async (): Promise<ChatMessages> => {
+    return [{ role: "user", content: `test ${Math.random()}` }];
+};

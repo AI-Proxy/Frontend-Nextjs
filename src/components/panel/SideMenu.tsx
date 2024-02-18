@@ -6,11 +6,12 @@ import { TbSparkles, TbMessage2Code } from "react-icons/tb";
 import ChatListComponent from "./ChatList";
 import { ChatList } from "@/lib/fetch";
 import { Dancing_Script } from "next/font/google";
+import Link from "next/link";
 
 const dancingScript = Dancing_Script({ weight: "variable", subsets: ["latin"] });
 
 const SideMenu = ({ data }: { data: { chatList: ChatList } }) => {
-    const [open, setOpen] = useState<boolean>();
+    const [open, setOpen] = useState<boolean>(true);
 
     const resizeHandler = (event: UIEvent) => {
         if (window.innerWidth < 768) {
@@ -39,11 +40,11 @@ const SideMenu = ({ data }: { data: { chatList: ChatList } }) => {
                 onClick={() => setOpen(false)}
             ></div>
             <aside
-                className={`absolute md:relative flex flex-col h-screen max-h-full bg-accent z-20 transition-all duration-300 shrink-0`}
+                className={`absolute md:relative flex flex-col h-[100svh] max-h-full bg-accent z-20 transition-all duration-300 shrink-0`}
                 data-open={open ? "true" : "false"}
             >
                 <Button
-                    className="absolute top-2 md:top-1/2 -end-8 flex flex-col items-center justify-center w-6 p-1 opacity-40 hover:opacity-100 transition-all cursor-pointer group"
+                    className="absolute top-3.5 md:top-1/2 -end-8 flex flex-col items-center justify-center w-6 p-1 opacity-40 hover:opacity-100 transition-all cursor-pointer group"
                     variant="ghost"
                     onClick={() => setOpen((o) => !o)}
                 >
@@ -61,12 +62,16 @@ const SideMenu = ({ data }: { data: { chatList: ChatList } }) => {
                 <nav className="flex flex-col w-full h-full overflow-hidden">
                     <div className="flex flex-col gap-4 w-full h-full min-w-[16rem] p-2 pt-3">
                         <div className="flex items-center justify-between gap-4 w-full shrink-0">
-                            <div className="bg-foreground text-background p-1 px-2 rounded-lg">
-                                <span className={`text-3xl font-extrabold ${dancingScript.className}`}>AI</span>
-                            </div>
-                            <Button className="flex items-center justify-between gap-2 w-max py-5" variant="outline">
-                                <TbMessage2Code size="1.25rem" />
-                                <p className="text-base">New Chat</p>
+                            <Link href="/">
+                                <div className="bg-foreground text-background p-1 px-2 rounded-lg">
+                                    <span className={`text-3xl font-extrabold ${dancingScript.className}`}>AI</span>
+                                </div>
+                            </Link>
+                            <Button className="flex items-center justify-between gap-2 w-max py-5" variant="outline" asChild>
+                                <Link href="/panel">
+                                    <TbMessage2Code size="1.25rem" />
+                                    <p className="text-base">New Chat</p>
+                                </Link>
                             </Button>
                         </div>
 
