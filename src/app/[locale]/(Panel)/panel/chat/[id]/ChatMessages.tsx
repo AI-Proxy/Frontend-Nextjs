@@ -2,14 +2,14 @@
 import { Button } from "@/components/ui/Button";
 import { ScrollArea } from "@/components/ui/ScrollArea";
 import { streamingFetch } from "@/lib/utils";
-import { KeyboardEvent, useEffect, useRef } from "react";
+import { KeyboardEvent, memo, useEffect, useRef } from "react";
 import { signal } from "@preact/signals-react";
 import { useSignals } from "@preact/signals-react/runtime";
 import hljs from "highlight.js";
 import { TbSend } from "react-icons/tb";
 import Message from "@/components/panel/chat/Message";
 import { ChatMessages } from "@/lib/fetch";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 // adds copy option for code blocks
 hljs.addPlugin({
@@ -32,9 +32,12 @@ const messages = signal<ChatMessages>([]);
 
 const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMessages }) => {
     useSignals();
+
+
+    
     const pathname = usePathname();
     const queryParams = useSearchParams();
-    const router = useRouter();
+
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const textareaSpanRef = useRef<HTMLSpanElement>(null);
     const endOfMsgSpan = useRef<HTMLSpanElement>(null);
@@ -44,19 +47,24 @@ const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMess
 
     const focusOnTextarea = () => textareaRef.current?.focus();
     const textareaOnKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-        if (event.shiftKey || event.altKey || event.ctrlKey) return;
-        if (event.key === "Enter") submit();
+        if (event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return;
+        if (event.key === "Enter") {
+            event.preventDefault();
+            submit();
+        }
     };
 
     const expandInputArea = () => {
-        if (textareaSpanRef.current) textareaSpanRef.current.innerText = `${textareaRef.current?.value}\n`;
+        if (textareaSpanRef.current) textareaSpanRef.current.innerText = `${textareaRef.current?.value}\n`; // ? `${textareaRef.current?.value}\n` : "";
         if (textareaRef.current) textareaRef.current.style.height = `${textareaSpanRef.current?.clientHeight}px`;
     };
     const clearInputArea = () => {
         if (textareaRef.current) textareaRef.current.value = "";
         if (textareaSpanRef.current) textareaSpanRef.current.innerText = "";
-        expandInputArea();
+        if (textareaRef.current) textareaRef.current.style.height = `${textareaSpanRef.current?.clientHeight}px`;
     };
+
+    const handleScroll = () => {};
 
     const submit = async (initPromt?: string | null) => {
         const promt = initPromt ?? textareaRef.current?.value.trim();
@@ -89,6 +97,7 @@ const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMess
 
     useEffect(() => {
         messages.value = initialMessages;
+        
         setTimeout(() => {
             endOfMsgSpan.current?.scrollIntoView({ behavior: "auto" });
             hljs.highlightAll();
@@ -97,6 +106,12 @@ const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMess
         const initalPromt = queryParams?.get("promt");
         window.history.pushState({}, "", pathname);
         if (initalPromt) submit(initalPromt);
+
+        scrollElement?.addEventListener("scroll", handleScroll);
+
+        return () => {
+            scrollElement?.removeEventListener("scroll", handleScroll);
+        };
     }, []);
 
     return (
@@ -110,8 +125,8 @@ const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMess
                 </div>
             </ScrollArea>
             <div className="w-full max-w-screen-md p-3 shrink-0">
-                <div className="flex items-center gap-1 w-full p-2 rounded-lg bg-input">
-                    <div className="relative flex flex-col w-full max-h-40 overflow-hidden" onClick={focusOnTextarea}>
+                <div className="flex items-center justify-center gap-1 w-full rounded-lg bg-input">
+                    <div className="relative flex flex-col w-full max-h-40 p-2 py-4 overflow-hidden" onClick={focusOnTextarea}>
                         <textarea
                             className="w-full min-h-6 max-h-40 px-2 bg-input outline-none resize-none shrink-0"
                             placeholder="Write something..."
@@ -128,7 +143,7 @@ const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMess
                             ref={textareaSpanRef}
                         ></span>
                     </div>
-                    <Button className="p-2 mt-auto mb-0 group" onClick={() => submit()}>
+                    <Button className="p-2 mt-auto mb-2 me-2 group" onClick={() => submit()}>
                         <TbSend className="animate-send" size="1.5rem" />
                     </Button>
                 </div>
@@ -137,4 +152,4 @@ const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMess
     );
 };
 
-export default Chat;
+export default memo(Chat);

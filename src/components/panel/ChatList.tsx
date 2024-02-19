@@ -12,7 +12,7 @@ const ChatList = ({ chats }: { chats: ChatListType }) => {
     const pathname = usePathname();
     const chatsContext = useContext(ChatsContext);
     let chatList = chats;
-    
+
     useEffect(() => {
         chatsContext.dispatch({ type: "setInitalChats", chatList: chats });
         chatList = chatsContext.value;
@@ -20,7 +20,7 @@ const ChatList = ({ chats }: { chats: ChatListType }) => {
 
     return (
         <ScrollArea className="w-full my-1 pe-2 grow">
-            <ul className="flex flex-col gap-5 w-full max-w-full min-w-0">
+            <ul className="flex flex-col gap-5 w-full max-w-full">
                 {chatList.map((item, i) => (
                     <li className="flex flex-col gap-2 w-full" key={i}>
                         <small className="ms-2 opacity-60 text-xs">{item.date}</small>
