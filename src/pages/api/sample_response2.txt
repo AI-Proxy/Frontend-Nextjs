@@ -1,0 +1,26 @@
+Certainly! Here's an example of a simple Node.js server:
+
+```javascript
+const http = require('http');
+
+const hostname = 'localhost';
+const port = 3000;
+
+const server = http.createServer((req, res) => {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/plain');
+    res.end('Hello, World!');
+});
+
+server.listen(port, hostname, () => {
+      console.log(`Server running at http://${hostname}:${port}/`);
+});
+```
+
+To run this server, save the code in a file with a `.js` extension (e.g., `server.js`), and then run it using Node.js by executing the following command in your terminal:
+
+```
+node server.js
+```
+
+This will start the server, and you can access it by navigating to `http://localhost:3000` in your web browser. You should see the message \"Hello, World!\" displayed on the page.

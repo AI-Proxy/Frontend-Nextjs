@@ -1,0 +1,38 @@
+Sure! Here's a simple Node.js code to make an HTTPS request to an API endpoint using the `https` module:
+
+```javascript
+const https = require('https');
+
+const options = {
+      hostname: 'api.example.com',
+  port: 443, // default HTTPS port
+  path: '/api/endpoint',
+  method: 'GET',
+  headers: {
+        'Content-Type': 'application/json',
+    // Any other headers required by the API endpoint
+  }
+};
+
+const req = https.request(options, (res) => {
+      let data = '';
+
+  res.on('data', (chunk) => {
+        data += chunk;
+  });
+
+  res.on('end', () => {
+        console.log(data); // Handle the response data here
+  });
+});
+
+req.on('error', (error) => {
+      console.error(error);
+});
+
+req.end();
+```
+
+In this example, you need to replace `'api.example.com'` with the actual API endpoint hostname, and `'/api/endpoint'` with the specific endpoint you want to request. Additionally, you can modify the `options` object to include any required headers or request parameters according to the API documentation.
+
+Remember to handle the response data in the `res.on('end', ...)` callback according to your requirements.

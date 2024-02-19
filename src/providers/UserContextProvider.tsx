@@ -1,5 +1,5 @@
 "use client";
-import { useReducer, createContext, memo, Dispatch } from "react";
+import { useReducer, createContext, Dispatch } from "react";
 
 type User = { avatar: string; name: string; family: string; email: string };
 type actionType = { type: "setUser"; user: User };
@@ -28,4 +28,4 @@ const UserContextProvider = ({ children }: Readonly<{ children: React.ReactNode 
     return <userContext.Provider value={{ value: user, dispatch }}>{children}</userContext.Provider>;
 };
 
-export default memo(UserContextProvider);
+export default UserContextProvider;

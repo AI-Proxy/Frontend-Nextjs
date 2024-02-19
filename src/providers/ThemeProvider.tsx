@@ -1,5 +1,5 @@
 "use client";
-import { createContext, memo, useReducer, Dispatch, useEffect } from "react";
+import { createContext, useReducer, Dispatch, useEffect } from "react";
 
 type themeType = "light" | "dark";
 type actionType = { type: "toggle-theme" | "set-theme"; theme?: themeType };
@@ -30,7 +30,6 @@ const changeTheme = (oldTheme: themeType, newTheme: themeType) => {
 };
 
 const ThemeProvider = ({ children }: Readonly<{ children: React.ReactNode }>) => {
-
     // btw becuse we use classes and html attrebute to set the theme we dont need a context to share with whole app
     const [theme, dispatch] = useReducer(reducer, themeInitalValue);
 
@@ -43,4 +42,4 @@ const ThemeProvider = ({ children }: Readonly<{ children: React.ReactNode }>) =>
     return <themeContext.Provider value={{ class: theme, dispatch }}>{children}</themeContext.Provider>;
 };
 
-export default memo(ThemeProvider);
+export default ThemeProvider;

@@ -1,0 +1,15 @@
+aside {
+    width: 0px;
+}
+aside[data-open="false"] {
+    width: 0px;
+}
+aside[data-open="true"] {
+    width: 264px;
+}
+
+@media (min-width: 768px) {
+    aside {
+        width: 264px;
+    }
+}

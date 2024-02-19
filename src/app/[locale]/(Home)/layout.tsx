@@ -24,10 +24,10 @@ export default function RootLayout({ children, params }: Readonly<{ children: Re
                 <Provider>
                     <main className="flex flex-col items-center justify-center gap-2 h-screen">
                         <span>main layout</span>
-                        <Header></Header>
+                        <Header />
                         {children}
                         <div className="flex items-center gap-2 mt-auto mb-4" dir="ltr">
-                            <SwitchLangButton currentLang={params.locale} />
+                            {/* <SwitchLangButton currentLang={params.locale} /> */}
                             <SwitchThemeButton />
                         </div>
                     </main>

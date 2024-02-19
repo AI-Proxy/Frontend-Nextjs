@@ -1,9 +1,10 @@
 "use client";
 import { userContext } from "@/providers/UserContextProvider";
-import { useContext } from "react";
+import { memo, useContext } from "react";
 
 const Header = () => {
     const user = useContext(userContext);
+    
     return (
         <div>
             <span>Header</span>
@@ -12,4 +13,4 @@ const Header = () => {
     );
 };
 
-export default Header;
+export default memo(Header);
