@@ -2,7 +2,7 @@
 import { ChatList as ChatListType } from "@/lib/fetch";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
-import { ScrollArea } from "@/components/ui/ScrollArea";
+import { ScrollArea, ScrollBar } from "@/components/ui/ScrollArea";
 import { TbDots } from "react-icons/tb";
 import { usePathname } from "next/navigation";
 import { useContext, useEffect } from "react";

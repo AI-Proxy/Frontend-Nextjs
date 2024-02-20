@@ -12,7 +12,7 @@ export default async function Page({ params }: Readonly<{ params: { locale: Loca
     messages = await getChatMessages();
 
     return (
-        <div className="flex flex-col items-center w-full min-h-0 grow">
+        <div className="flex flex-col items-center w-full grow" style={{ height: "calc(100% - 5rem)" }}>
             <Suspense fallback="loading">
                 <ChatMessagesComponent dir={dir} initialMessages={messages} />
             </Suspense>

@@ -11,7 +11,7 @@ import Link from "next/link";
 const dancingScript = Dancing_Script({ weight: "variable", subsets: ["latin"] });
 
 const SideMenu = ({ data }: { data: { chatList: ChatList } }) => {
-    const [open, setOpen] = useState<boolean>(true);
+    const [open, setOpen] = useState<boolean>();
 
     const resizeHandler = (event: UIEvent) => {
         if (window.innerWidth < 768) {
@@ -60,11 +60,11 @@ const SideMenu = ({ data }: { data: { chatList: ChatList } }) => {
                     ></span>
                 </Button>
                 <nav className="flex flex-col w-full h-full overflow-hidden">
-                    <div className="flex flex-col gap-4 w-full h-full min-w-[16rem] p-2 pt-3">
+                    <div className="flex flex-col gap-4 w-full h-full min-w-[16rem] p-3 pt-4">
                         <div className="flex items-center justify-between gap-4 w-full shrink-0">
                             <Link href="/">
                                 <div className="bg-foreground text-background p-1 px-2 rounded-lg">
-                                    <span className={`text-3xl font-extrabold ${dancingScript.className}`}>AI</span>
+                                    <span className={`text-xl font-extrabold ${dancingScript.className}`}>AI</span>
                                 </div>
                             </Link>
                             <Button className="flex items-center justify-between gap-2 w-max py-5" variant="outline" asChild>

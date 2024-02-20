@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/Button";
 import { ScrollArea } from "@/components/ui/ScrollArea";
 import { streamingFetch } from "@/lib/utils";
-import { KeyboardEvent, memo, useEffect, useRef } from "react";
+import { KeyboardEvent, UIEvent, memo, useCallback, useEffect, useRef } from "react";
 import { signal } from "@preact/signals-react";
 import { useSignals } from "@preact/signals-react/runtime";
 import hljs from "highlight.js";
@@ -10,6 +10,7 @@ import { TbSend } from "react-icons/tb";
 import Message from "@/components/panel/chat/Message";
 import { ChatMessages } from "@/lib/fetch";
 import { usePathname, useSearchParams } from "next/navigation";
+import PromtInput, { PromtInputHandle } from "@/components/panel/chat/PromtInput";
 
 // adds copy option for code blocks
 hljs.addPlugin({
@@ -29,47 +30,51 @@ hljs.addPlugin({
 });
 
 const messages = signal<ChatMessages>([]);
+const loadingMessages = signal<boolean>(false);
+const noMoreMessages = signal<boolean>(false);
+const last_scrollHeigth = signal<number>(0);
 
 const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMessages }) => {
     useSignals();
 
-
-    
     const pathname = usePathname();
     const queryParams = useSearchParams();
 
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const textareaSpanRef = useRef<HTMLSpanElement>(null);
+    const promtInputRef = useRef<PromtInputHandle>(null);
     const endOfMsgSpan = useRef<HTMLSpanElement>(null);
     const messagesRef = useRef<HTMLDivElement>(null);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
-    const scrollElement = scrollAreaRef.current?.querySelector("div");
 
-    const focusOnTextarea = () => textareaRef.current?.focus();
-    const textareaOnKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-        if (event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return;
-        if (event.key === "Enter") {
-            event.preventDefault();
-            submit();
-        }
+    const loadMoreMessages = async (event: UIEvent) => {
+        if (event.currentTarget.scrollTop > 100) return;
+        if (noMoreMessages.value) return;
+        if (loadingMessages.value) return;
+        const ct = event.currentTarget;
+
+        loadingMessages.value = true;
+
+        const newMessages = await getChatMessages();
+        loadingMessages.value = false;
+        messages.value = [...newMessages, ...messages.value];
+
+        if (last_scrollHeigth.value) ct.scrollTo({ top: Math.abs(last_scrollHeigth.value - ct.scrollHeight) });
+        last_scrollHeigth.value = ct.scrollHeight;
+
+        // noMoreMessages.current = true;
     };
 
-    const expandInputArea = () => {
-        if (textareaSpanRef.current) textareaSpanRef.current.innerText = `${textareaRef.current?.value}\n`; // ? `${textareaRef.current?.value}\n` : "";
-        if (textareaRef.current) textareaRef.current.style.height = `${textareaSpanRef.current?.clientHeight}px`;
-    };
-    const clearInputArea = () => {
-        if (textareaRef.current) textareaRef.current.value = "";
-        if (textareaSpanRef.current) textareaSpanRef.current.innerText = "";
-        if (textareaRef.current) textareaRef.current.style.height = `${textareaSpanRef.current?.clientHeight}px`;
+    const getChatMessages = async (): Promise<ChatMessages> => {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(initialMessages);
+            }, 2000);
+        });
     };
 
-    const handleScroll = () => {};
-
-    const submit = async (initPromt?: string | null) => {
-        const promt = initPromt ?? textareaRef.current?.value.trim();
+    const submit = useCallback(async (initPromt?: string | null) => {
+        const promt = initPromt ?? promtInputRef.current?.textareaElement?.value.trim();
         if (!promt) return;
-        clearInputArea();
+        promtInputRef.current?.clearInputArea();
 
         const data = new FormData();
         data.append("promt", promt);
@@ -93,31 +98,26 @@ const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMess
 
         // TODO : we might not need this
         hljs.highlightAll();
-    };
+    }, []);
 
     useEffect(() => {
         messages.value = initialMessages;
         
         setTimeout(() => {
             endOfMsgSpan.current?.scrollIntoView({ behavior: "auto" });
-            hljs.highlightAll();
+            last_scrollHeigth.value = scrollAreaRef.current?.querySelector("div")?.scrollHeight || 0;
         }, 100);
 
         const initalPromt = queryParams?.get("promt");
         window.history.pushState({}, "", pathname);
         if (initalPromt) submit(initalPromt);
-
-        scrollElement?.addEventListener("scroll", handleScroll);
-
-        return () => {
-            scrollElement?.removeEventListener("scroll", handleScroll);
-        };
     }, []);
 
     return (
         <>
-            <ScrollArea className="w-full min-h-0 grow" dir={dir === "rtl" ? "rtl" : "ltr"} ref={scrollAreaRef}>
-                <div className="flex flex-col items-center justify-center gap-6 w-full h-full p-3" ref={messagesRef}>
+            <ScrollArea className="w-full max-h-full grow" dir={dir === "rtl" ? "rtl" : "ltr"} ref={scrollAreaRef} onScroll={loadMoreMessages}>
+                <div className="flex flex-col items-center gap-6 w-full h-full p-3 overflow-auto" ref={messagesRef}>
+                    <span hidden={!loadingMessages.value}>Loading More Messages...</span>
                     {messages.value.map((message, i) => (
                         <Message text={message.content} role={message.role} key={i} />
                     ))}
@@ -125,28 +125,7 @@ const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMess
                 </div>
             </ScrollArea>
             <div className="w-full max-w-screen-md p-3 shrink-0">
-                <div className="flex items-center justify-center gap-1 w-full rounded-lg bg-input">
-                    <div className="relative flex flex-col w-full max-h-40 p-2 py-4 overflow-hidden" onClick={focusOnTextarea}>
-                        <textarea
-                            className="w-full min-h-6 max-h-40 px-2 bg-input outline-none resize-none shrink-0"
-                            placeholder="Write something..."
-                            tabIndex={0}
-                            rows={1}
-                            dir="auto"
-                            ref={textareaRef}
-                            onInput={expandInputArea}
-                            onKeyDown={textareaOnKeyDown}
-                        ></textarea>
-                        <span
-                            className="absolute inline-block w-full invisible opacity-0 pointer-events-none"
-                            style={{ overflowWrap: "break-word" }}
-                            ref={textareaSpanRef}
-                        ></span>
-                    </div>
-                    <Button className="p-2 mt-auto mb-2 me-2 group" onClick={() => submit()}>
-                        <TbSend className="animate-send" size="1.5rem" />
-                    </Button>
-                </div>
+                <PromtInput onSubmit={submit} ref={promtInputRef} />
             </div>
         </>
     );
