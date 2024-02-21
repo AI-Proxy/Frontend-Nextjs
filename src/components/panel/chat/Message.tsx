@@ -1,4 +1,10 @@
 "use client";
+// import "highlight.js/styles/atom-one-dark.min.css";
+// import "highlight.js/styles/base16/dracula.min.css";
+// import "highlight.js/styles/base16/classic-dark.min.css";
+// import "highlight.js/styles/base16/chalk.min.css";
+import "highlight.js/styles/base16/default-dark.min.css";
+// import "highlight.js/styles/base16/espresso.min.css";
 import { memo, useEffect, useRef } from "react";
 import { marked } from "marked";
 import DOMPurify from "dompurify";

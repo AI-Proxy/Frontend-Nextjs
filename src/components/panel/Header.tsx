@@ -1,5 +1,4 @@
 "use client";
-import { memo } from "react";
 import SwitchThemeButton from "@/components/SwitchThemeButton";
 import SwitchLangButton from "@/components/SwitchLangButton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select";
@@ -42,4 +41,4 @@ const Header = ({ currentLang }: { currentLang: Locale }) => {
     );
 };
 
-export default memo(Header);
+export default Header;

@@ -1,12 +1,10 @@
 "use client";
-import { Button } from "@/components/ui/Button";
 import { ScrollArea } from "@/components/ui/ScrollArea";
 import { streamingFetch } from "@/lib/utils";
-import { KeyboardEvent, UIEvent, memo, useCallback, useEffect, useRef } from "react";
+import { UIEvent, memo, useCallback, useEffect, useRef } from "react";
 import { signal } from "@preact/signals-react";
 import { useSignals } from "@preact/signals-react/runtime";
 import hljs from "highlight.js";
-import { TbSend } from "react-icons/tb";
 import Message from "@/components/panel/chat/Message";
 import { ChatMessages } from "@/lib/fetch";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -18,7 +16,19 @@ hljs.addPlugin({
         const div = document.createElement("div");
         const small = document.createElement("small");
         const button = document.createElement("button");
-        div.classList.add("codeblock-head", "flex", "items-center", "justify-between", "gap-2", "w-full", "p-2", "px-4", "rounded-t-xl", "bg-background");
+        div.classList.add(
+            "codeblock-head",
+            "flex",
+            "items-center",
+            "justify-between",
+            "gap-2",
+            "w-full",
+            "p-2",
+            "px-4",
+            "rounded-t-xl",
+            "bg-background",
+            "border-b"
+        );
         small.classList.add("opacity-50");
         button.classList.add("underline");
         small.innerText = result.language || "";
@@ -49,18 +59,17 @@ const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMess
         if (event.currentTarget.scrollTop > 100) return;
         if (noMoreMessages.value) return;
         if (loadingMessages.value) return;
-        const ct = event.currentTarget;
+        const currentTarget = event.currentTarget;
 
         loadingMessages.value = true;
-
         const newMessages = await getChatMessages();
-        loadingMessages.value = false;
         messages.value = [...newMessages, ...messages.value];
+        loadingMessages.value = false;
 
-        const scrollDiff = Math.abs(last_scrollHeigth.value - ct.scrollHeight);
-        if (scrollDiff > 500) ct.scrollTo({ top: scrollDiff });
-        else ct.scrollTo({ top: last_scrollHeigth.value });
-        last_scrollHeigth.value = ct.scrollHeight;
+        const scrollDiff = Math.abs(last_scrollHeigth.value - currentTarget.scrollHeight);
+        if (scrollDiff > 200) currentTarget.scrollTo({ top: scrollDiff });
+        else currentTarget.scrollTo({ top: last_scrollHeigth.value });
+        last_scrollHeigth.value = currentTarget.scrollHeight;
 
         // noMoreMessages.current = true;
     };

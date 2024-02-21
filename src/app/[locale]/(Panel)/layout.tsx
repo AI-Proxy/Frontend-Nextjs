@@ -1,7 +1,4 @@
 import "@/app/globals.css";
-import "highlight.js/styles/atom-one-dark.min.css";
-// import "highlight.js/styles/base16/dracula.min.css";
-// import "highlight.js/styles/base16/classic-dark.min.css";
 import type { Metadata } from "next";
 import { Inter, Vazirmatn } from "next/font/google";
 import { Toaster } from "@/components/ui/Toaster";

@@ -16,6 +16,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         { role: "Assistance", content: sr2.toString() },
     ];
 
+    sleep(4000);
+
     return res.json(rs);
 };
 
