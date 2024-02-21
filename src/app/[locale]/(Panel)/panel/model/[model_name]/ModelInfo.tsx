@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { ChatsContext } from "@/providers/ChatsContextProvider";
 import { useRouter } from "next/navigation";
-import { useContext, useRef } from "react";
+import { memo, useCallback, useContext, useRef } from "react";
 import { TbAlertTriangle, TbArtboard } from "react-icons/tb";
 
 const ModelInfo = ({ modelData }: { modelData: any }) => {
@@ -13,7 +13,7 @@ const ModelInfo = ({ modelData }: { modelData: any }) => {
     const chatList = useContext(ChatsContext);
     const promtInputRef = useRef<PromtInputHandle>(null);
 
-    const submit = async () => {
+    const submit = useCallback(async () => {
         const promt = promtInputRef.current?.textareaElement?.value.trim() || "";
         if (!promt) return;
 
@@ -30,7 +30,7 @@ const ModelInfo = ({ modelData }: { modelData: any }) => {
         // inject the new chat into chat list
         chatList.dispatch({ type: "addChat", chatList: [{ list: [{ id: newChat.id, name: newChat.name }], date: "Today" }] });
         router.push(`/panel/chat/13?promt=${promt}`);
-    };
+    }, []);
 
     return (
         <>
@@ -67,4 +67,4 @@ const ModelInfo = ({ modelData }: { modelData: any }) => {
     );
 };
 
-export default ModelInfo;
+export default memo(ModelInfo);

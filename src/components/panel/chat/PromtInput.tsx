@@ -58,7 +58,7 @@ const PromtInput = forwardRef<PromtInputHandle, PromtInputProps>(({ onSubmit, ..
         <div className="flex items-center justify-center gap-1 w-full rounded-lg bg-input">
             <div className="relative flex flex-col w-full max-h-40 p-2 py-4 overflow-hidden" onClick={focusOnTextarea}>
                 <textarea
-                    className="w-full min-h-6 max-h-40 px-2 bg-input outline-none resize-none shrink-0"
+                    className="w-full h-6 min-h-6 max-h-40 px-2 bg-input outline-none resize-none shrink-0"
                     placeholder="Write something..."
                     tabIndex={0}
                     rows={1}
@@ -79,5 +79,6 @@ const PromtInput = forwardRef<PromtInputHandle, PromtInputProps>(({ onSubmit, ..
         </div>
     );
 });
+PromtInput.displayName = "PromtInput";
 
 export default memo(PromtInput);

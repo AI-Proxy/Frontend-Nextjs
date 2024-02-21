@@ -57,7 +57,9 @@ const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMess
         loadingMessages.value = false;
         messages.value = [...newMessages, ...messages.value];
 
-        if (last_scrollHeigth.value) ct.scrollTo({ top: Math.abs(last_scrollHeigth.value - ct.scrollHeight) });
+        const scrollDiff = Math.abs(last_scrollHeigth.value - ct.scrollHeight);
+        if (scrollDiff > 500) ct.scrollTo({ top: scrollDiff });
+        else ct.scrollTo({ top: last_scrollHeigth.value });
         last_scrollHeigth.value = ct.scrollHeight;
 
         // noMoreMessages.current = true;
@@ -82,8 +84,12 @@ const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMess
         // TODO : this does not have error handling
         messages.value.push({ role: "user", content: promt });
         messages.value.push({ role: "assistance", content: "" });
-        const response = await fetch("/api/v-chat-response", { method: "POST", body: data });
-        // const response = await fetch("/api/chat", { method: "POST", body: data });
+        // const response = await fetch("/api/v-chat-response", { method: "POST", body: data });
+        const response = await fetch("/api/chat", { method: "POST", body: data });
+        if (response.status !== 200) {
+            console.warn(response.statusText);
+            return;
+        }
         const reader = response.body?.getReader();
         for await (const chunk of streamingFetch(reader)) {
             const lastMessage = messages.value.at(-1);
@@ -102,7 +108,7 @@ const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMess
 
     useEffect(() => {
         messages.value = initialMessages;
-        
+
         setTimeout(() => {
             endOfMsgSpan.current?.scrollIntoView({ behavior: "auto" });
             last_scrollHeigth.value = scrollAreaRef.current?.querySelector("div")?.scrollHeight || 0;
@@ -116,7 +122,7 @@ const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMess
     return (
         <>
             <ScrollArea className="w-full max-h-full grow" dir={dir === "rtl" ? "rtl" : "ltr"} ref={scrollAreaRef} onScroll={loadMoreMessages}>
-                <div className="flex flex-col items-center gap-6 w-full h-full p-3 overflow-auto" ref={messagesRef}>
+                <div className="flex flex-col items-center gap-6 w-full h-full p-3" ref={messagesRef}>
                     <span hidden={!loadingMessages.value}>Loading More Messages...</span>
                     {messages.value.map((message, i) => (
                         <Message text={message.content} role={message.role} key={i} />
