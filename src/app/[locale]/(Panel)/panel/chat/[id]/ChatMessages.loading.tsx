@@ -4,8 +4,8 @@ const ChatMessagesLoading = () => {
     const arr = [1, 0, 1, 0];
     return (
         <div className="flex flex-col items-center gap-4 w-full p-4">
-            {arr.map((v) => (
-                <div className={`flex items-start gap-2 w-full max-w-screen-md ${v ? "flex-row" : "flex-row-reverse"}`}>
+            {arr.map((v, i) => (
+                <div className={`flex items-start gap-2 w-full max-w-screen-md ${v ? "flex-row" : "flex-row-reverse"}`} key={i}>
                     <span className="sticky top-0 w-6 h-6 mt-1 rounded-full shrink-0 bg-neutral-500 animate-pulse"></span>
                     <div className="flex flex-col items-start gap-2 w-full max-w-screen-sm">
                         <b className={`text-lg px-1 ${v ? "me-auto" : "ms-auto"}`}>

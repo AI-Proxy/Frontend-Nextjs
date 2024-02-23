@@ -27,9 +27,7 @@ export default async function RootLayout({ children, params }: Readonly<{ childr
             <body>
                 <Provider>
                     <div className="flex w-full h-full overflow-clip">
-                        <Suspense fallback="loading">
-                            <SideMenu data={{ chatList }} />
-                        </Suspense>
+                        <SideMenu data={{ chatList }} />
                         <main className="flex flex-col h-[100svh] max-h-full overflow-clip grow">
                             <Header currentLang={params.locale} />
                             {children}

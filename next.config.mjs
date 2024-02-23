@@ -7,6 +7,12 @@ const nextConfig = {
         optimizePackageImports: [],
     },
 
+    // compiler: {
+    //     removeConsole: {
+    //         exclude: ["error"],
+    //     },
+    // },
+
     // typescript: {
     //     ignoreBuildErrors: true,
     // },

@@ -121,7 +121,7 @@ const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMess
         setTimeout(() => {
             endOfMsgSpan.current?.scrollIntoView({ behavior: "auto" });
             last_scrollHeigth.value = scrollAreaRef.current?.querySelector("div")?.scrollHeight || 0;
-        }, 100);
+        }, 50);
 
         const initalPromt = queryParams?.get("promt");
         window.history.pushState({}, "", pathname);
