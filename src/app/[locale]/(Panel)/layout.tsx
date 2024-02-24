@@ -8,7 +8,6 @@ import { Locale } from "@/i18n.config";
 import SideMenu from "@/components/panel/SideMenu";
 import Header from "@/components/panel/Header";
 import { getChatList } from "@/lib/fetch";
-import { Suspense } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 const vazirmatn = Vazirmatn({ subsets: ["latin"] });
