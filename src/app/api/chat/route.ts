@@ -10,7 +10,6 @@ const openai = new OpenAI({
 });
 
 export async function POST(req: Request) {
-    unstable_noStore();
     // const { messages } = await req.json();
     // const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
     //     { role: "system", content: "You are a helpful assistant." },
