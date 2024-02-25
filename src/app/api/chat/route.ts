@@ -3,12 +3,14 @@ import { OpenAIStream, StreamingTextResponse } from "ai";
 import { useChat } from "ai/react";
 import { NextResponse } from "next/server";
 import { NextApiRequest, NextApiResponse } from "next";
+import { unstable_noStore } from "next/cache";
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
 export async function POST(req: Request) {
+    unstable_noStore();
     // const { messages } = await req.json();
     // const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
     //     { role: "system", content: "You are a helpful assistant." },
