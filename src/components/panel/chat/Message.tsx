@@ -1,20 +1,35 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+// import "highlight.js/styles/atom-one-dark.min.css";
+// import "highlight.js/styles/base16/dracula.min.css";
+// import "highlight.js/styles/base16/classic-dark.min.css";
+// import "highlight.js/styles/base16/chalk.min.css";
+import "highlight.js/styles/base16/default-dark.min.css";
+// import "highlight.js/styles/base16/espresso.min.css";
+import { memo, useEffect, useRef } from "react";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
 import hljs from "highlight.js";
 
 const Message = ({ text, role }: { text: string; role: string }) => {
     const markdownRef = useRef<HTMLDivElement>(null);
-    const [mounted, setMounted] = useState(false);
-    useEffect(() => setMounted(true), []);
+    const mounted = useRef(false);
+    useEffect(() => {
+        mounted.current = true;
+    }, []);
 
     let html = "";
     if (mounted) html = DOMPurify.sanitize(marked(text).toString());
 
     // useEffect(() => {
-    //     hljs.highlightAll();
-    // }, [text]);
+    //     console.log("highlightAll");
+    //     markdownRef.current?.querySelectorAll("pre code").forEach((elm: any) => {
+    //         hljs.highlightElement(elm);
+    //     });
+    // }, []);
+
+    useEffect(() => {
+        markdownRef.current?.querySelectorAll("pre code").forEach((elm: any) => hljs.highlightElement(elm));
+    }, [text]);
 
     return (
         <div className={`flex items-start gap-2 w-full max-w-screen-md ${role === "user" ? "flex-row" : "flex-row-reverse"}`}>
@@ -32,4 +47,4 @@ const Message = ({ text, role }: { text: string; role: string }) => {
     );
 };
 
-export default Message;
+export default memo(Message);

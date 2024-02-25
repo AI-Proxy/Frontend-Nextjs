@@ -1,6 +1,6 @@
 "use client";
 import { ChatList } from "@/lib/fetch";
-import { useReducer, createContext, Dispatch } from "react";
+import { useReducer, createContext, Dispatch, useMemo } from "react";
 
 type actionType = { type: "setInitalChats" | "addChat"; chatList: ChatList };
 

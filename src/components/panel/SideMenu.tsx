@@ -7,23 +7,25 @@ import ChatListComponent from "./ChatList";
 import { ChatList } from "@/lib/fetch";
 import { Dancing_Script } from "next/font/google";
 import Link from "next/link";
+import { signal } from "@preact/signals-react";
+import { useSignals } from "@preact/signals-react/runtime";
 
 const dancingScript = Dancing_Script({ weight: "variable", subsets: ["latin"] });
 
+const open = signal<boolean | null>(null);
+
 const SideMenu = ({ data }: { data: { chatList: ChatList } }) => {
-    const [open, setOpen] = useState<boolean>(true);
+    useSignals();
 
     const resizeHandler = (event: UIEvent) => {
         if (window.innerWidth < 768) {
-            setOpen((o) => {
-                if (o) return false;
-                return o;
-            });
+            if (open.value) open.value = false;
+            else open.value = open.value;
         }
     };
 
     useEffect(() => {
-        if (window.innerWidth > 768) setOpen(true);
+        if (window.innerWidth > 768) open.value = true;
         window.addEventListener("resize", resizeHandler);
 
         return () => {
@@ -35,36 +37,36 @@ const SideMenu = ({ data }: { data: { chatList: ChatList } }) => {
         <>
             <div
                 className={`backdrop absolute inset-0 inline-block md:hidden bg-black z-10 transition-all duration-500 ${
-                    open ? "opacity-40" : "pointer-events-none opacity-0"
+                    open.value ? "opacity-40" : "pointer-events-none opacity-0"
                 }`}
-                onClick={() => setOpen(false)}
+                onClick={() => (open.value = false)}
             ></div>
             <aside
                 className={`absolute md:relative flex flex-col h-[100svh] max-h-full bg-accent z-20 transition-all duration-300 shrink-0`}
-                data-open={open ? "true" : "false"}
+                data-open={open.value ? "true" : "false"}
             >
                 <Button
                     className="absolute top-3.5 md:top-1/2 -end-8 flex flex-col items-center justify-center w-6 p-1 opacity-40 hover:opacity-100 transition-all cursor-pointer group"
                     variant="ghost"
-                    onClick={() => setOpen((o) => !o)}
+                    onClick={() => (open.value = !open.value)}
                 >
                     <span
                         className={`inline-block w-1 h-3.5 bg-foreground rounded-full -mb-0.5 transition-all ${
-                            !open ? "rotate-[20deg]" : "group-hover:-rotate-[20deg]"
+                            !open.value ? "rotate-[20deg]" : "group-hover:-rotate-[20deg]"
                         }`}
                     ></span>
                     <span
                         className={`inline-block w-1 h-3.5 bg-foreground rounded-full -mt-0.5 transition-all ${
-                            !open ? "-rotate-[20deg]" : "group-hover:rotate-[20deg]"
+                            !open.value ? "-rotate-[20deg]" : "group-hover:rotate-[20deg]"
                         }`}
                     ></span>
                 </Button>
                 <nav className="flex flex-col w-full h-full overflow-hidden">
-                    <div className="flex flex-col gap-4 w-full h-full min-w-[16rem] p-2 pt-3">
+                    <div className="flex flex-col gap-4 w-full h-full min-w-[16rem] p-3 pt-4">
                         <div className="flex items-center justify-between gap-4 w-full shrink-0">
                             <Link href="/">
                                 <div className="bg-foreground text-background p-1 px-2 rounded-lg">
-                                    <span className={`text-3xl font-extrabold ${dancingScript.className}`}>AI</span>
+                                    <span className={`text-xl font-extrabold ${dancingScript.className}`}>AI</span>
                                 </div>
                             </Link>
                             <Button className="flex items-center justify-between gap-2 w-max py-5" variant="outline" asChild>
@@ -97,4 +99,4 @@ const SideMenu = ({ data }: { data: { chatList: ChatList } }) => {
     );
 };
 
-export default memo(SideMenu);
+export default SideMenu;

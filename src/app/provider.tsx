@@ -3,6 +3,7 @@
 import ChatsContextProvider from "@/providers/ChatsContextProvider";
 import UserContextProvider from "@/providers/UserContextProvider";
 import { ThemeProvider } from "next-themes";
+import { memo } from "react";
 
 const Provider = ({ children }: Readonly<{ children: React.ReactNode }>) => {
     return (
@@ -16,4 +17,4 @@ const Provider = ({ children }: Readonly<{ children: React.ReactNode }>) => {
     );
 };
 
-export default Provider;
+export default memo(Provider);

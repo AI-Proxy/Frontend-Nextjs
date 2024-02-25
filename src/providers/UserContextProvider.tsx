@@ -1,5 +1,5 @@
 "use client";
-import { useReducer, createContext, Dispatch } from "react";
+import { useReducer, createContext, Dispatch, useContext } from "react";
 
 type User = { avatar: string; name: string; family: string; email: string };
 type actionType = { type: "setUser"; user: User };

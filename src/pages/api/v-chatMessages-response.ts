@@ -9,11 +9,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const rs = [
         { role: "user", content: `test ${Math.random()}` },
-        { role: "Assistance", content: sr2.toString() },
+        { role: "Assistance", content: sr0.toString() },
         { role: "user", content: `test ${Math.random()}` },
         { role: "Assistance", content: sr1.toString() },
         { role: "user", content: `test ${Math.random()}` },
-        { role: "Assistance", content: sr0.toString() },
+        { role: "Assistance", content: sr2.toString() },
     ];
 
     return res.json(rs);
