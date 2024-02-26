@@ -36,7 +36,7 @@ const _GD = async (request: NextRequest, { params }: { params: { slug: string } 
         .catch((error) => new Response("", { status: 500, statusText: error }));
 
     if (res.status >= 500) {
-        console.error({ status: res.status, err: res.statusText });
+        console.error({ status: res.status, statusText: res.statusText, err: await res.text() });
         return new Response(null, { status: 500, statusText: "Internal Server Error" });
     }
 
