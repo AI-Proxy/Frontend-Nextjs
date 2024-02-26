@@ -9,7 +9,7 @@ export async function middleware(req: NextRequest) {
     let res = new NextResponse();
 
     if (req.method === "GET") {
-        res = setCsrf(req, res);
+        res = await setCsrf<NextResponse>(req, res);
         res = i18nRewrites(req, res);
     }
 

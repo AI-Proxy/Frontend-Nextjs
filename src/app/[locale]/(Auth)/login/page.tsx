@@ -23,39 +23,24 @@ const Login = () => {
         return () => clearInterval(intervalId);
     }, [timeLeft]);
 
-    const getPhoneNumber = async (event: FormEvent<HTMLFormElement>) => {
+    const login = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         setLoading(true);
-        setTimeout(() => {
-            setLoading(false);
-            toast({
-                title: "Whoops...",
-                description: "The verification code has been expired!",
-                variant: "destructive",
-            });
-        }, 5000);
+        const data = new FormData(event.currentTarget);
+        // const mobile = data.get("mobile");
 
-        // const data = new FormData(event.currentTarget);
-        // const name = data.get("name");
-        // const email = data.get("email");
-        // const avatar = data.get("avatar");
+        const R = await fetch("/api/v1/auth/login", { method: "POST", body: data });
+        const response: any = (await R.json().catch((e) => {})) || {};
+        setLoading(false);
 
-        // await axios
-        //     .post("/api/some-route", data, {})
-        //     .then((res) => {
-        //         console.log({ dd: res.data });
-        //     })
-        //     .catch((e) => {
-        //         console.log({ e });
-        //     });
+        if (R.status >= 400) {
+            toast({ title: "Whoops...", description: response.message ?? "Unknow Error", variant: "destructive" });
+            return;
+        }
 
-        // await fetch("/api/some-route", { method: "POST", body: data }).then(async (res) => {
-        //     console.log({ dd: await res.json() });
-        // });
-
-        // setStep(2);
-        // setTimeLeft(120);
+        setStep(2);
+        setTimeLeft(response.remaining_time ?? 120);
     };
 
     const verifyPhoneNumber = async (event: FormEvent<HTMLFormElement>) => {
@@ -80,7 +65,7 @@ const Login = () => {
                     Welcome To <span className={`${romanesco.className} ms-1`}>AI</span>
                 </h1>
                 <p className="text-sm opacity-75 -mb-2 text-pretty">Enter your phone number to login or register</p>
-                <form className="flex flex-col items-center gap-4 w-full" name="enter" onSubmit={getPhoneNumber}>
+                <form className="flex flex-col items-center gap-4 w-full" name="enter" onSubmit={login}>
                     <Input className="py-6" type="text" name="mobile" placeholder="Phone Number" required />
                     <Button className="w-full py-6" type="submit" disabled={loading}>
                         {loading ? <TbLoader className="animate-spin" size="1.25rem" /> : "Continue"}
