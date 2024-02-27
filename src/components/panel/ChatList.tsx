@@ -1,5 +1,5 @@
 "use client";
-import { ChatList as ChatListType } from "@/lib/fetch";
+import { ChatList as ChatListType } from "@/fetchers/fetch";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { ScrollArea, ScrollBar } from "@/components/ui/ScrollArea";

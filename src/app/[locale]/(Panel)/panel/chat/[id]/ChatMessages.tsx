@@ -6,7 +6,7 @@ import { signal } from "@preact/signals-react";
 import { useSignals } from "@preact/signals-react/runtime";
 import hljs from "highlight.js";
 import Message from "@/components/panel/chat/Message";
-import { ChatMessages } from "@/lib/fetch";
+import { ChatMessages } from "@/fetchers/fetch";
 import { usePathname, useSearchParams } from "next/navigation";
 import PromtInput, { PromtInputHandle } from "@/components/panel/chat/PromtInput";
 

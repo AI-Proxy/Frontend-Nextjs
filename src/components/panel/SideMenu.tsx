@@ -4,7 +4,7 @@ import "./SideMenu.css";
 import { memo, useEffect, useState } from "react";
 import { TbSparkles, TbMessage2Code } from "react-icons/tb";
 import ChatListComponent from "./ChatList";
-import { ChatList } from "@/lib/fetch";
+import { ChatList } from "@/fetchers/fetch";
 import { Dancing_Script } from "next/font/google";
 import Link from "next/link";
 import { signal } from "@preact/signals-react";
