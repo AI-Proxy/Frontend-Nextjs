@@ -2,7 +2,7 @@ import { Dir, Locale } from "@/i18n.config";
 import { signal } from "@preact/signals-react";
 import ChatMessagesComponent from "./ChatMessages";
 import { getDir } from "@/lib/i18n";
-import { ChatMessages, getChatMessages } from "@/lib/fetch";
+import { ChatMessages, getChatMessages } from "@/fetchers/fetch";
 import { Suspense } from "react";
 import ChatMessagesLoading from "./ChatMessages.loading";
 

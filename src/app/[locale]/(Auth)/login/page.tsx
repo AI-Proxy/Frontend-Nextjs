@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { TbLoader } from "react-icons/tb";
 import { useToast } from "@/hooks/UseToast";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { Aclonica, Dancing_Script } from "next/font/google";
 
 const romanesco = Dancing_Script({ weight: "700", subsets: ["latin"] });
@@ -12,6 +12,7 @@ const romanesco = Dancing_Script({ weight: "700", subsets: ["latin"] });
 const Login = () => {
     const { toast } = useToast();
 
+    const mobile = useRef("");
     const [step, setStep] = useState(1);
     const [timeLeft, setTimeLeft] = useState(120);
     const [loading, setLoading] = useState(false);
@@ -23,54 +24,60 @@ const Login = () => {
         return () => clearInterval(intervalId);
     }, [timeLeft]);
 
-    const getPhoneNumber = async (event: FormEvent<HTMLFormElement>) => {
+    const login = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         setLoading(true);
-        setTimeout(() => {
-            setLoading(false);
-            toast({
-                title: "Whoops...",
-                description: "The verification code has been expired!",
-                variant: "destructive",
-            });
-        }, 5000);
+        const data = new FormData(event.currentTarget);
+        mobile.current = data.get("mobile")?.toString() || "";
 
-        // const data = new FormData(event.currentTarget);
-        // const name = data.get("name");
-        // const email = data.get("email");
-        // const avatar = data.get("avatar");
+        const R = await fetch("/api/v1/auth/login", { method: "POST", body: data });
+        const response: any = (await R.json().catch((e) => {})) || {};
+        setLoading(false);
 
-        // await axios
-        //     .post("/api/some-route", data, {})
-        //     .then((res) => {
-        //         console.log({ dd: res.data });
-        //     })
-        //     .catch((e) => {
-        //         console.log({ e });
-        //     });
+        if (R.status >= 400) {
+            toast({ title: "Whoops...", description: response.message ?? "Unknow Error", variant: "destructive" });
+            return;
+        }
 
-        // await fetch("/api/some-route", { method: "POST", body: data }).then(async (res) => {
-        //     console.log({ dd: await res.json() });
-        // });
-
-        // setStep(2);
-        // setTimeLeft(120);
+        setStep(2);
+        setTimeLeft(response.remaining_time ?? 120);
     };
 
     const verifyPhoneNumber = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        // const data = new FormData(event.currentTarget);
-        // const name = data.get("name");
-        // const email = data.get("email");
-        // const avatar = data.get("avatar");
+        setLoading(true);
+        const data = new FormData(event.currentTarget);
+        data.append("mobile", mobile.current);
 
-        // await fetch("/api/some-route", { method: "POST", body: data }).then(async (res) => {
-        //     console.log({ dd: await res.json() });
-        // });
+        const R = await fetch("/api/auth/verify-code", { method: "POST", body: data });
+        const response: any = (await R.json().catch((e) => {})) || {};
 
-        setStep(1);
+        if (R.status >= 400) {
+            setLoading(false);
+            toast({ title: "Whoops...", description: response.message ?? "Unknow Error", variant: "destructive" });
+            return;
+        }
+
+        window.location.href = "/panel";
+    };
+
+    const resendCode = async () => {
+        const data = new FormData();
+        data.append("mobile", mobile.current);
+
+        setLoading(true);
+        const R = await fetch("/api/v1/auth/login", { method: "POST", body: data });
+        const response: any = (await R.json().catch((e) => {})) || {};
+        setLoading(false);
+
+        if (R.status >= 400) {
+            toast({ title: "Whoops...", description: response.message ?? "Unknow Error", variant: "destructive" });
+            return;
+        }
+
+        setTimeLeft(response.remaining_time ?? 120);
     };
 
     const stepOne = (
@@ -80,7 +87,7 @@ const Login = () => {
                     Welcome To <span className={`${romanesco.className} ms-1`}>AI</span>
                 </h1>
                 <p className="text-sm opacity-75 -mb-2 text-pretty">Enter your phone number to login or register</p>
-                <form className="flex flex-col items-center gap-4 w-full" name="enter" onSubmit={getPhoneNumber}>
+                <form className="flex flex-col items-center gap-4 w-full" key="enter" onSubmit={login}>
                     <Input className="py-6" type="text" name="mobile" placeholder="Phone Number" required />
                     <Button className="w-full py-6" type="submit" disabled={loading}>
                         {loading ? <TbLoader className="animate-spin" size="1.25rem" /> : "Continue"}
@@ -104,13 +111,18 @@ const Login = () => {
             <CardContent className="flex flex-col items-center gap-6 w-full p-8">
                 <h1 className="text-3xl font-bold">Verify Phone Number</h1>
                 <p className="text-sm opacity-75 -mb-2 text-pretty">We sent a verification code to your phone number</p>
-                <form className="flex flex-col items-center gap-4 w-full" name="verify" onSubmit={verifyPhoneNumber}>
-                    <Input className="py-6 appearance-none" type="number" name="code" placeholder="Verification Code" required />
+                <form className="flex flex-col items-center gap-4 w-full" key="verify" onSubmit={verifyPhoneNumber}>
+                    <Input className="py-6 appearance-none" type="number" name="otp" placeholder="Verification Code" required />
                     <Button className="w-full py-6" type="submit">
                         {loading ? <TbLoader className="animate-spin" size="1.25rem" /> : "Verify"}
                         Continue
                     </Button>
-                    <small className="text-muted-foreground">{new Date(timeLeft * 1000).toISOString().substring(14, 19)}</small>
+                    <div className="flex flex-col items-center w-full">
+                        <small className="text-muted-foreground">{new Date(timeLeft * 1000).toISOString().substring(14, 19)}</small>
+                        <Button className="p-0.5 h-auto" type="button" variant="link" onClick={resendCode} disabled={timeLeft > 0}>
+                            Resend
+                        </Button>
+                    </div>
                 </form>
             </CardContent>
         </Card>

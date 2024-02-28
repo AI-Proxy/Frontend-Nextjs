@@ -3,7 +3,7 @@ import { Dancing_Script } from "next/font/google";
 import { Card } from "@/components/ui/Card";
 import { ScrollArea } from "@/components/ui/ScrollArea";
 import { Input } from "@/components/ui/Input";
-import { getModelsList } from "@/lib/fetch";
+import { getModelsList } from "@/fetchers/fetch";
 
 const dancingScript = Dancing_Script({ weight: "variable", subsets: ["latin"] });
 

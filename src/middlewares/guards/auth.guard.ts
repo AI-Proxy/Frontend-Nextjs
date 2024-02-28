@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
+import { refreshAuthToken } from "@/lib/utils.server";
 
 export default async function main(req: NextRequest, res: NextResponse, routes: string[]): Promise<[boolean, NextResponse]> {
     const allowUserToViewPage = true;
@@ -21,11 +22,8 @@ export default async function main(req: NextRequest, res: NextResponse, routes: 
     if (!authToken) return [!allowUserToViewPage, res];
 
     // verify the token
-    let payload: any;
     const key = new TextEncoder().encode(process.env.JWT_SECRET);
-    await jwtVerify(authToken, key, { algorithms: ["HS512"] })
-        .then(({ payload }) => payload)
-        .catch((e) => {});
+    const { payload } = await jwtVerify(authToken, key, { algorithms: ["HS256"] }).catch((e) => ({ payload: undefined }));
 
     // verification faild then user is not logged in so dont allow user
     if (!payload) {
@@ -33,11 +31,19 @@ export default async function main(req: NextRequest, res: NextResponse, routes: 
         return [!allowUserToViewPage, res];
     }
 
-    // expiration date is passed then user is not logged in
-    if (payload.exp < Date.now()) {
+    // expiration date is passed then user is not logged in (*1000 becuse of js milliseconds)
+    const expireTime: number = (payload.exp || 0) * 1000;
+    if (expireTime < Date.now()) {
         res.cookies.delete("AuthToken");
         return [!allowUserToViewPage, res];
     }
 
-    return [!allowUserToViewPage, res];
+    // make a call to refresh token if issue at passes 1 day
+    const limit: number = 60 * 60 * 24 * 1000; // 1 day
+    const issuedAt: number = (payload.iat || 0) * 1000;
+    if (Date.now() - limit > issuedAt) {
+        res = await refreshAuthToken(req, res);
+    }
+
+    return [allowUserToViewPage, res];
 }
