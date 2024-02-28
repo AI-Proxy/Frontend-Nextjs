@@ -1,5 +1,5 @@
+import { _GD } from "@/lib/utils.server";
 import { NextRequest, NextResponse } from "next/server";
-import { _GD } from "@/app/api/v1/[...slug]/route";
 
 export const POST = async (request: NextRequest) => {
     request.nextUrl.pathname = "/api/v1/auth/verify-otp";
