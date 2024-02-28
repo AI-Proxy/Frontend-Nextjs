@@ -3,12 +3,15 @@ import PromtInput, { PromtInputHandle } from "@/components/panel/chat/PromtInput
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { useToast } from "@/hooks/UseToast";
 import { ChatsContext } from "@/providers/ChatsContextProvider";
 import { useRouter } from "next/navigation";
 import { memo, useCallback, useContext, useRef } from "react";
 import { TbAlertTriangle, TbArtboard } from "react-icons/tb";
 
 const ModelInfo = ({ modelData }: { modelData: any }) => {
+    const { toast } = useToast();
+
     const router = useRouter();
     const chatList = useContext(ChatsContext);
     const promtInputRef = useRef<PromtInputHandle>(null);
@@ -17,19 +20,27 @@ const ModelInfo = ({ modelData }: { modelData: any }) => {
         const promt = promtInputRef.current?.textareaElement?.value.trim() || "";
         if (!promt) return;
 
+        const chatName = promt.length > 100 ? promt.substring(0, 100) : promt;
+
         // create new chat
         const data = new FormData();
-        let Q: Response = new Response();
-        await fetch("http://localhost:3000/api/v-createNewChat-response", { method: "GET", next: { revalidate: 0 } })
-            .then((res) => (Q = res))
-            .catch((err) => console.error({ err }));
+        data.append("name", chatName);
+        data.append("model_name", modelData.name);
+        data.append("ai_service_id", modelData.serviceId);
+        data.append("chat_message[]", JSON.stringify({ role: "system", content: "You are a helpful assistant.", model_name: modelData.name }));
+        data.append("chat_message[]", JSON.stringify({ role: "user", content: promt, model_name: modelData.name }));
 
-        if (Q.status !== 200) return;
-        const newChat = await Q.json();
+        const R = await fetch("/api/v1/chats", { method: "POST", body: data });
+        const response: any = (await R.json().catch((e) => {})) || {};
+
+        if (R.status >= 400) {
+            toast({ title: "Whoops...", description: response.message ?? "Unknow Error", variant: "destructive" });
+            return;
+        }
 
         // inject the new chat into chat list
-        chatList.dispatch({ type: "addChat", chatList: [{ list: [{ id: newChat.id, name: newChat.name }], date: "Today" }] });
-        router.push(`/panel/chat/13?promt=${promt}`);
+        chatList.dispatch({ type: "addChat", chatList: [{ list: [{ id: response.chat_id, name: chatName }], date: "Today" }] });
+        router.push(`/panel/chat/${response.chat_id}?promt=${promt}`);
     }, []);
 
     return (

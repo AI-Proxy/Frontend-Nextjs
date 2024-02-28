@@ -1,4 +1,4 @@
-import { SignJWT } from "jose";
+import { GeneralEncrypt, SignJWT } from "jose";
 import { NextRequest, NextResponse } from "next/server";
 
 export default async function main<R extends Response>(req: NextRequest, res: R): Promise<R> {
