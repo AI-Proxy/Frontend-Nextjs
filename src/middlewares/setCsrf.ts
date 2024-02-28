@@ -1,4 +1,4 @@
-import { GeneralEncrypt, SignJWT } from "jose";
+import { SignJWT } from "jose";
 import { NextRequest, NextResponse } from "next/server";
 
 export default async function main<R extends Response>(req: NextRequest, res: R): Promise<R> {
@@ -9,7 +9,6 @@ export default async function main<R extends Response>(req: NextRequest, res: R)
     const key = new TextEncoder().encode(process.env.CSRF_SECRET);
 
     const jwt = await new SignJWT({ ip }).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime("6 hours").sign(key);
-    // res.cookies.set("XSRF-TOKEN", jwt, { httpOnly: true, secure: true, path: "/", sameSite: "lax" });
 
     let newRes: any;
     if (res instanceof Response) newRes = new Response(res.body, res);
