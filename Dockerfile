@@ -21,7 +21,6 @@ WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED 1
 
 COPY --from=deps /app/node_modules ./node_modules
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
 COPY . .
 RUN \
     if [ -f yarn.lock ]; then yarn run build; \
