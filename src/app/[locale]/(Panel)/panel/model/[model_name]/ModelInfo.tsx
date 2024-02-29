@@ -3,13 +3,15 @@ import PromtInput, { PromtInputHandle } from "@/components/panel/chat/PromtInput
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { AiModel } from "@/fetchers/AiModels.fetch";
 import { useToast } from "@/hooks/UseToast";
 import { ChatsContext } from "@/providers/ChatsContextProvider";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { memo, useCallback, useContext, useRef } from "react";
 import { TbAlertTriangle, TbArtboard } from "react-icons/tb";
 
-const ModelInfo = ({ modelData }: { modelData: any }) => {
+const ModelInfo = ({ modelData }: { modelData: AiModel }) => {
     const { toast } = useToast();
 
     const router = useRouter();
@@ -25,10 +27,10 @@ const ModelInfo = ({ modelData }: { modelData: any }) => {
         // create new chat
         const data = new FormData();
         data.append("name", chatName);
-        data.append("model_name", modelData.name);
-        data.append("ai_service_id", modelData.serviceId);
-        data.append("chat_message[]", JSON.stringify({ role: "system", content: "You are a helpful assistant.", model_name: modelData.name }));
-        data.append("chat_message[]", JSON.stringify({ role: "user", content: promt, model_name: modelData.name }));
+        data.append("model_name", modelData.model_name);
+        data.append("ai_service_id", modelData.ai_service_id.toString());
+        data.append("chat_message", JSON.stringify({ role: "system", content: "You are a helpful assistant.", model_name: modelData.model_name }));
+        data.append("chat_message", JSON.stringify({ role: "user", content: promt, model_name: modelData.model_name }));
 
         const R = await fetch("/api/v1/chats", { method: "POST", body: data });
         const response: any = (await R.json().catch((e) => {})) || {};
@@ -48,8 +50,8 @@ const ModelInfo = ({ modelData }: { modelData: any }) => {
             <div className="flex flex-col items-center gap-4 w-full h-full">
                 <Card className="flex flex-col gap-4 w-full max-w-screen-md p-8">
                     <div className="flex items-center gap-4">
-                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-blue-300">
-                            <TbArtboard className="text-background" size="2rem" />
+                        <span className="flex items-center justify-center w-14 h-14 p-2 rounded-lg bg-muted-foreground">
+                            <Image src={modelData.icon} alt={modelData.name} width={40} height={40}></Image>
                         </span>
                         <b className="text-2xl">{modelData.name}</b>
                     </div>

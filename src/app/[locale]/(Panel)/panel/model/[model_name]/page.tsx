@@ -5,7 +5,7 @@ import { AiModel } from "@/fetchers/AiModels.fetch";
 const page = ({ params }: { params: { model_name: string } }) => {
     const modelData: AiModel = {
         id: 1,
-        icon: "",
+        icon: "https://cdn-icons-png.flaticon.com/512/11865/11865326.png",
         name: "ChatGpt 3.5",
         model_name: "gpt-3.5-turbo-0125",
         model_type: "text",
