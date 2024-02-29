@@ -19,13 +19,3 @@ export const getChatMessages = cache(async (): Promise<ChatMessages> => {
         .catch((err) => console.error({ err }));
     return await Q.json();
 });
-
-export type ModelsList = Array<{ id: number; icon: string; name: string; desc: string }>;
-export const getModelsList = cache(async (): Promise<ModelsList> => {
-    const data = new FormData();
-    let Q: Response = new Response();
-    await fetch(`${process.env.BASE_URL}/api/v-modelsList-response`, { method: "GET", next: { revalidate: 60 * 60 * 24 } })
-        .then((res) => (Q = res))
-        .catch((err) => console.error({ err }));
-    return await Q.json();
-});

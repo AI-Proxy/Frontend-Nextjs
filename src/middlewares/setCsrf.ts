@@ -14,6 +14,8 @@ export default async function main<R extends Response>(req: NextRequest, res: R)
     if (res instanceof Response) newRes = new Response(res.body, res);
     if (res instanceof NextResponse) newRes = new NextResponse(res.body, res);
 
-    newRes.headers.append("Set-Cookie", `XSRF-TOKEN=${jwt}; Path=/; Secure; HttpOnly; SameSite=lax`);
+    const Secure = process.env.SECURE_COOKIES === "true" ? "Secure;" : "";
+
+    newRes.headers.append("Set-Cookie", `XSRF-TOKEN=${jwt}; Path=/; ${Secure} HttpOnly; SameSite=lax`);
     return newRes;
 }

@@ -13,7 +13,7 @@ export const POST = async (request: NextRequest) => {
     const res = new NextResponse(null, response);
     res.cookies.set("AuthToken", TOKEN, {
         path: "/",
-        secure: true,
+        secure: process.env.SECURE_COOKIES === "true",
         httpOnly: true,
         sameSite: "lax",
         maxAge: parseInt(process.env.AUTH_TOKEN_EXPIRE_TIME_IN_SECONDS || "0"),
