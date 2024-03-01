@@ -8,12 +8,14 @@ export default async function main<R extends Response>(req: NextRequest, res: R)
     const ip = req.ip || req.headers.get("x-forwarded-for") || "";
     const key = new TextEncoder().encode(process.env.CSRF_SECRET);
 
-    const jwt = await new SignJWT({ ip }).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime("6 hours").sign(key);
+    const csrf_jwt = await new SignJWT({ ip }).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime("6 hours").sign(key);
 
     let newRes: any;
     if (res instanceof Response) newRes = new Response(res.body, res);
     if (res instanceof NextResponse) newRes = new NextResponse(res.body, res);
 
-    newRes.headers.append("Set-Cookie", `XSRF-TOKEN=${jwt}; Path=/; Secure; HttpOnly; SameSite=lax`);
+    const Secure = process.env.SECURE_COOKIES === "true" ? "Secure;" : "";
+
+    newRes.headers.append("Set-Cookie", `XSRF-TOKEN=${csrf_jwt}; Path=/; ${Secure} HttpOnly; SameSite=lax`);
     return newRes;
 }

@@ -5,12 +5,14 @@ import { Input } from "@/components/ui/Input";
 import { TbLoader } from "react-icons/tb";
 import { useToast } from "@/hooks/UseToast";
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { Aclonica, Dancing_Script } from "next/font/google";
+import { useRouter } from "next/navigation";
+import { Dancing_Script } from "next/font/google";
 
 const romanesco = Dancing_Script({ weight: "700", subsets: ["latin"] });
 
 const Login = () => {
     const { toast } = useToast();
+    const router = useRouter();
 
     const mobile = useRef("");
     const [step, setStep] = useState(1);
@@ -56,11 +58,11 @@ const Login = () => {
 
         if (R.status >= 400) {
             setLoading(false);
-            toast({ title: "Whoops...", description: response.message ?? "Unknow Error", variant: "destructive" });
+            toast({ title: "Whoops...", description: response.message.toString() ?? "Unknow Error", variant: "destructive" });
             return;
         }
 
-        window.location.href = "/panel";
+        router.replace("/panel");
     };
 
     const resendCode = async () => {

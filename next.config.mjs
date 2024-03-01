@@ -3,6 +3,17 @@ const nextConfig = {
     reactStrictMode: true,
     output: "standalone",
 
+    images: {
+        remotePatterns: [
+            {
+                protocol: "https",
+                hostname: "**.flaticon.com",
+                port: "",
+                pathname: "/**",
+            },
+        ],
+    },
+
     experimental: {
         optimizePackageImports: [],
     },

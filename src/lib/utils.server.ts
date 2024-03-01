@@ -3,12 +3,12 @@ import { NextRequest, NextResponse } from "next/server";
 import setCsrf from "@/middlewares/setCsrf";
 
 export const _GD = async (request: NextRequest, { params }: { params: { slug: string } }): Promise<Response> => {
-    const host: string = `${request.nextUrl.protocol}//${request.headers.get("host")}`;
-    const origin: string = request.headers.get("origin")?.toString() || "";
+    // const host: string = `${request.nextUrl.protocol}//${request.headers.get("host")}`;
+    // const origin: string = request.headers.get("origin")?.toString() || "";
 
-    if (host !== origin) {
-        return new NextResponse("Not Valid", { status: 419 });
-    }
+    // if (host !== origin) {
+    //     return new NextResponse("Not Valid", { status: 419 });
+    // }
     if (!(await checkCsrf(request))) {
         return new NextResponse("Expired", { status: 419 });
     }
@@ -28,7 +28,7 @@ export const _GD = async (request: NextRequest, { params }: { params: { slug: st
     headers.set("tt", Date.now().toString());
 
     // set Authorization header if there is any
-    headers.set("Authorization", request.cookies.get("AuthToken")?.value || "");
+    headers.set("Authorization", `Bearer ${request.cookies.get("AuthToken")?.value}`);
 
     let res = await fetch(`${process.env.API_BASE_URL}${request.nextUrl.pathname}${request.nextUrl.search}`, {
         method: request.method,
@@ -86,7 +86,7 @@ export const refreshAuthToken = async (req: NextRequest, res: NextResponse): Pro
 
     res.cookies.set("AuthToken", new_TOKEN, {
         path: "/",
-        secure: true,
+        secure: process.env.SECURE_COOKIES === "true",
         httpOnly: true,
         sameSite: "lax",
         maxAge: parseInt(process.env.AUTH_TOKEN_EXPIRE_TIME_IN_SECONDS || "0"),
