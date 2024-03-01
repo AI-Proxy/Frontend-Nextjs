@@ -36,7 +36,10 @@ export const _GD = async (request: NextRequest, { params }: { params: { slug: st
         headers: headers,
     })
         .then((response) => response)
-        .catch((error) => new Response(error, { status: 500, statusText: "Internal Error" }));
+        .catch((error) => {
+            console.error({ error });
+            return new Response(error, { status: 500, statusText: "Internal Error" });
+        });
 
     if (res.status >= 500) {
         console.error({ status: res.status, statusText: res.statusText, err: await res.text() });
