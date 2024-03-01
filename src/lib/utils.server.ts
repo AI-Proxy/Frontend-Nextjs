@@ -19,9 +19,11 @@ export const _GD = async (request: NextRequest, { params }: { params: { slug: st
         .catch((e) => console.error(e));
     const data = arrBuffer || null;
 
-    const headers = request.headers;
-    headers.delete("content-length");
-    headers.delete("host");
+    const headers = new Headers();
+    // const headers = request.headers;
+    // headers.delete("content-length");
+    // headers.delete("host");
+    headers.set("content-type", request.headers.get("content-type") || "");
     headers.set("accept", "application/json");
     headers.set("x-forwarded-for", request.ip || request.headers.get("x-forwarded-for") || "");
     headers.set("serversecret", process.env.SERVER_SECRET || "");
