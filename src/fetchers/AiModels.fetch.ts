@@ -18,12 +18,11 @@ export const getModelsList = cache(async (mode: "server" | "client", lastId?: nu
     if (lastId) queryParams = `${queryParams}&last_id=${lastId}`;
 
     if (mode === "server") {
-        const { cookies: Cookies, headers: Headers } = await import("next/headers");
-        let headers: any = { Accept: "application/json" };
-
+        const { cookies: Cookies } = await import("next/headers");
         const AuthToken: string = Cookies().get("AuthToken")?.value || "";
+
+        let headers: any = { Accept: "application/json" };
         headers["Authorization"] = `Bearer ${AuthToken}`;
-        headers["x-forwarded-for"] = Headers().get("x-forwarded-for") || "";
         headers["serversecret"] = process.env.SERVER_SECRET || "";
         headers["tt"] = Date.now().toString();
 
