@@ -3,7 +3,7 @@ import { Dancing_Script } from "next/font/google";
 import { Card } from "@/components/ui/Card";
 import { ScrollArea } from "@/components/ui/ScrollArea";
 import { Input } from "@/components/ui/Input";
-import ModelList from "./ModelList";
+import ModelListFetcher from "./ModelListFetcher";
 import { Suspense } from "react";
 
 const dancingScript = Dancing_Script({ weight: "variable", subsets: ["latin"] });
@@ -22,7 +22,7 @@ const page = async () => {
                     <Input className="w-full max-w-screen-sm bg-input h-12 border" type="search" placeholder="Search" />
                 </Card>
                 <Suspense fallback="loading...">
-                    <ModelList />
+                    <ModelListFetcher />
                 </Suspense>
             </div>
         </ScrollArea>

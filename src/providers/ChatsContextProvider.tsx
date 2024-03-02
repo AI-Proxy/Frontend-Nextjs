@@ -1,14 +1,14 @@
 "use client";
-import { ChatList } from "@/fetchers/fetch";
-import { useReducer, createContext, Dispatch, useMemo } from "react";
+import { Chat } from "@/fetchers/Chats.fetch";
+import { useReducer, createContext, Dispatch } from "react";
 
-type actionType = { type: "setInitalChats" | "addChat"; chatList: ChatList };
+type actionType = { type: "setInitalChats" | "addChat"; chatList: Chat[] };
 
-const contextInitalValue: { value: ChatList; dispatch: Dispatch<actionType> } = { value: [], dispatch: () => {} };
+const contextInitalValue: { value: Chat[]; dispatch: Dispatch<actionType> } = { value: [], dispatch: () => {} };
 export const ChatsContext = createContext(contextInitalValue);
 
-const reducer = (state: ChatList, action: actionType) => {
-    let newState: ChatList = state;
+const reducer = (state: Chat[], action: actionType) => {
+    let newState: Chat[] = state;
     switch (action.type) {
         case "setInitalChats":
             newState = action.chatList;

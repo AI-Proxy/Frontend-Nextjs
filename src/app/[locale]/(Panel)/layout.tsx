@@ -7,10 +7,11 @@ import { getDir } from "@/lib/i18n";
 import { Locale } from "@/i18n.config";
 import SideMenu from "@/components/panel/SideMenu";
 import Header from "@/components/panel/Header";
-import { getChatList } from "@/fetchers/fetch";
+import SideMenuFetcher from "./SideMenuFetcher";
+import { Suspense } from "react";
 
-const inter = Inter({ subsets: ["latin"] });
-const vazirmatn = Vazirmatn({ subsets: ["latin"] });
+// const inter = Inter({ subsets: ["latin"] });
+// const vazirmatn = Vazirmatn({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
     title: "AI.Hub | Panel",
@@ -19,14 +20,15 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children, params }: Readonly<{ children: React.ReactNode; params: { locale: Locale } }>) {
     const dir = getDir(params.locale);
-    const chatList = await getChatList();
 
     return (
         <html lang={params.locale} dir={dir}>
             <body>
                 <Provider>
                     <div className="flex w-full h-full overflow-clip">
-                        <SideMenu data={{ chatList }} />
+                        <Suspense fallback="loading...">
+                            <SideMenuFetcher />
+                        </Suspense>
                         <main className="flex flex-col h-[100svh] max-h-full overflow-clip grow">
                             <Header currentLang={params.locale} />
                             {children}

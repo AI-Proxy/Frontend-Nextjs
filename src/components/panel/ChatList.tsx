@@ -1,5 +1,5 @@
 "use client";
-import { ChatList as ChatListType } from "@/fetchers/fetch";
+import { Chat } from "@/fetchers/Chats.fetch";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { ScrollArea, ScrollBar } from "@/components/ui/ScrollArea";
@@ -9,7 +9,7 @@ import { useContext, useEffect } from "react";
 import { ChatsContext } from "@/providers/ChatsContextProvider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover";
 
-const ChatList = ({ chats }: { chats: ChatListType }) => {
+const ChatList = ({ chats }: { chats: Chat[] }) => {
     const pathname = usePathname();
     const chatsContext = useContext(ChatsContext);
     let chatList = chats;

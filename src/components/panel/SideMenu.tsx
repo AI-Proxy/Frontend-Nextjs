@@ -1,20 +1,20 @@
 "use client";
 import { Button } from "@/components/ui/Button";
 import "./SideMenu.css";
-import { memo, useEffect, useState } from "react";
+import { Suspense, memo, useEffect, useState } from "react";
 import { TbSparkles, TbMessage2Code } from "react-icons/tb";
-import ChatListComponent from "./ChatList";
-import { ChatList } from "@/fetchers/fetch";
+import ChatList from "./ChatList";
+import { Chat } from "@/fetchers/Chats.fetch";
 import { Dancing_Script } from "next/font/google";
 import Link from "next/link";
 import { signal } from "@preact/signals-react";
 import { useSignals } from "@preact/signals-react/runtime";
 
-const dancingScript = Dancing_Script({ weight: "variable", subsets: ["latin"] });
+const dancingScript = Dancing_Script({ weight: "700", subsets: ["latin"] });
 
 const open = signal<boolean | null>(null);
 
-const SideMenu = ({ data }: { data: { chatList: ChatList } }) => {
+const SideMenu = ({ chatListInitial }: { chatListInitial: Chat[] }) => {
     useSignals();
 
     const resizeHandler = (event: UIEvent) => {
@@ -66,7 +66,7 @@ const SideMenu = ({ data }: { data: { chatList: ChatList } }) => {
                         <div className="flex items-center justify-between gap-4 w-full shrink-0">
                             <Link href="/">
                                 <div className="bg-foreground text-background p-1 px-2 rounded-lg">
-                                    <span className={`text-xl font-extrabold ${dancingScript.className}`}>AI</span>
+                                    <span className={`text-lg font-bold ${dancingScript.className}`}>AI</span>
                                 </div>
                             </Link>
                             <Button className="flex items-center justify-between gap-2 w-max py-5" variant="outline" asChild>
@@ -77,7 +77,7 @@ const SideMenu = ({ data }: { data: { chatList: ChatList } }) => {
                             </Button>
                         </div>
 
-                        <ChatListComponent chats={data.chatList} />
+                        <ChatList chats={chatListInitial} />
 
                         <div className="flex flex-col gap-1 w-full shrink-0">
                             <Button className="flex items-center justify-start gap-3 w-full h-16 p-3" variant="outline">
