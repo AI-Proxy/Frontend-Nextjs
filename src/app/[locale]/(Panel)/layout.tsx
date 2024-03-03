@@ -6,9 +6,11 @@ import Provider from "@/app/provider";
 import { getDir } from "@/lib/i18n";
 import { Locale } from "@/i18n.config";
 import SideMenu from "@/components/panel/SideMenu";
+import SideMenuLoading from "@/components/panel/SideMenu.loading";
 import Header from "@/components/panel/Header";
 import SideMenuFetcher from "./SideMenuFetcher";
 import { Suspense } from "react";
+import RefreshToken from "@/components/RefreshToken";
 
 // const inter = Inter({ subsets: ["latin"] });
 // const vazirmatn = Vazirmatn({ subsets: ["latin"] });
@@ -24,9 +26,10 @@ export default async function RootLayout({ children, params }: Readonly<{ childr
     return (
         <html lang={params.locale} dir={dir}>
             <body>
+                <RefreshToken />
                 <Provider>
                     <div className="flex w-full h-full overflow-clip">
-                        <Suspense fallback="loading...">
+                        <Suspense fallback={<SideMenuLoading />}>
                             <SideMenuFetcher />
                         </Suspense>
                         <main className="flex flex-col h-[100svh] max-h-full overflow-clip grow">

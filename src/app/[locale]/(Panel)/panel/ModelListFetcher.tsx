@@ -1,8 +1,12 @@
 import ModelList from "@/components/panel/ModelList";
-import { getModelsList } from "@/fetchers/AiModels.fetch";
+import { AiModel, getModelsList } from "@/fetchers/AiModels.fetch";
 
 const ModelListFetcher = async () => {
-    const modelsList_initial = await getModelsList("server");
+    let modelsList_initial: AiModel[] = [];
+    await getModelsList("server")
+        .then((c) => (modelsList_initial = c))
+        .catch((e) => console.log({ e }));
+
     return <ModelList listInitial={modelsList_initial} />;
 };
 

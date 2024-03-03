@@ -1,9 +1,12 @@
 import SideMenu from "@/components/panel/SideMenu";
-import { getChatsList } from "@/fetchers/Chats.fetch";
-import React from "react";
+import { Chat, getChatsList } from "@/fetchers/Chats.fetch";
 
 const SideMenuFetcher = async () => {
-    const chatList_initial = await getChatsList("server");
+    let chatList_initial: Chat[] = [];
+    await getChatsList("server")
+        .then((c) => (chatList_initial = c))
+        .catch((e) => console.log({ e }));
+
     return <SideMenu chatListInitial={chatList_initial} />;
 };
 

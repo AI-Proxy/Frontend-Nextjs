@@ -68,34 +68,34 @@ export const checkCsrf = async (req: NextRequest) => {
     return false;
 };
 
-export const refreshAuthToken = async (req: NextRequest, res: NextResponse): Promise<NextResponse> => {
-    res = new NextResponse(res.body, res);
+// export const refreshAuthToken = async (req: NextRequest, res: NextResponse): Promise<NextResponse> => {
+//     res = new NextResponse(res.body, res);
 
-    const old_TOKEN: string = req.cookies.get("AuthToken")?.value || "";
-    if (!old_TOKEN) return res;
+//     const old_TOKEN: string = req.cookies.get("AuthToken")?.value || "";
+//     if (!old_TOKEN) return res;
 
-    const R = await fetch(`${process.env.API_BASE_URL}/api/v1/auth/refresh`, {
-        method: "POST",
-        headers: { Accept: "application/json", Authorization: `Bearer ${old_TOKEN}` },
-    })
-        .then((response) => response)
-        .catch((error) => new Response(error, { status: 500, statusText: "Internal Error" }));
+//     const R = await fetch(`${process.env.API_BASE_URL}/api/v1/auth/refresh`, {
+//         method: "POST",
+//         headers: { Accept: "application/json", Authorization: `Bearer ${old_TOKEN}` },
+//     })
+//         .then((response) => response)
+//         .catch((error) => new Response(error, { status: 500, statusText: "Internal Error" }));
 
-    if (R.status >= 400) {
-        console.error({ status: R.status, statusText: R.statusText, err: await R.text() });
-        return res;
-    }
+//     if (R.status >= 400) {
+//         console.error({ status: R.status, statusText: R.statusText, err: await R.text() });
+//         return res;
+//     }
 
-    const responseData = await R.json();
-    const new_TOKEN: string = responseData.token;
+//     const responseData = await R.json();
+//     const new_TOKEN: string = responseData.token;
 
-    res.cookies.set("AuthToken", new_TOKEN, {
-        path: "/",
-        secure: process.env.SECURE_COOKIES === "true",
-        httpOnly: true,
-        sameSite: "lax",
-        maxAge: parseInt(process.env.AUTH_TOKEN_EXPIRE_TIME_IN_SECONDS || "0"),
-    });
+//     res.cookies.set("AuthToken", new_TOKEN, {
+//         path: "/",
+//         secure: process.env.SECURE_COOKIES === "true",
+//         httpOnly: true,
+//         sameSite: "lax",
+//         maxAge: parseInt(process.env.AUTH_TOKEN_EXPIRE_TIME_IN_SECONDS || "0"),
+//     });
 
-    return res;
-};
+//     return res;
+// };
