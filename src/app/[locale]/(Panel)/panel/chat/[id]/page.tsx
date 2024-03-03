@@ -15,7 +15,7 @@ export default async function Page({ params }: Readonly<{ params: { id: string; 
     return (
         <div className="flex flex-col items-center w-full grow" style={{ height: "calc(100% - 5rem)" }}>
             <Suspense fallback={<ChatMessagesLoading />}>
-                <ChatMessages dir={dir} initialMessages={messages} />
+                <ChatMessages dir={dir} initialMessages={messages} chatId={params.id} />
             </Suspense>
         </div>
     );
