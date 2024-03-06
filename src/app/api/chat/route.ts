@@ -6,10 +6,18 @@ import { sleep } from "@/lib/utils";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const myChatStream = async (req: NextRequest) => {
+const myChatStream = async (req: NextRequest, assistanceChatMessageId: string) => {
     const body = await req.formData();
     const promt = body.get("promt")?.toString() || "";
     if (!promt) return;
+
+    // TODO
+    // query the laravel backend and get a list of non empty messages so that we can send them to gpt
+    // we can use the chat message listing and controll the message amount with per_page value
+
+    // NOTICE
+    // there might be some situations in which the promt of user has no answer from ai
+    // should we include that promt in message list or not
 
     const messages: OpenAI.ChatCompletionMessageParam[] = [
         { role: "system", content: "You are a helpful assistant." },
@@ -17,14 +25,21 @@ const myChatStream = async (req: NextRequest) => {
     ];
     const AiResponse = await openai.chat.completions.create({ model: "gpt-3.5-turbo", stream: true, messages });
 
+    let content = "";
     const stream = new ReadableStream({
         async pull(controller) {
             for await (const chunk of AiResponse) {
                 if (!chunk) continue;
                 const msg = chunk.choices[0].delta.content?.toString() || "";
+                content += msg;
                 controller.enqueue(msg);
             }
             controller.close();
+            await updateChatMessage(req, assistanceChatMessageId, content);
+        },
+        async cancel() {
+            console.log("cancel");
+            // TODO : we can also do something here if user canceled the promt in any time
         },
     });
 
@@ -60,17 +75,23 @@ const aiChatStream = async (req: NextRequest) => {
     return res;
 };
 
-const simulatedChatStream = async () => {
+const simulatedChatStream = async (req: NextRequest, assistanceChatMessageId: string) => {
     const rs = createReadStream("./src/app/api/chat/sample_response2.txt", { highWaterMark: 20 });
+    let content = "";
 
     const stream = new ReadableStream({
         async pull(controller) {
             for await (const chunk of rs) {
                 if (!chunk) continue;
                 await sleep(100);
+                content += chunk;
                 controller.enqueue(chunk);
             }
             controller.close();
+            await updateChatMessage(req, assistanceChatMessageId, content);
+        },
+        async cancel() {
+            console.log("cancel");
         },
     });
 
@@ -84,8 +105,24 @@ const simulatedChatStream = async () => {
     return res;
 };
 
+const updateChatMessage = async (req: NextRequest, assistanceChatMessageId: string, AiResponse: string) => {
+    const data = new FormData();
+    data.append("content", AiResponse);
+    data.append("_method", "PUT");
+
+    const headers = new Headers();
+    headers.set("accept", "application/json");
+    headers.set("Authorization", `Bearer ${req.cookies.get("AuthToken")?.value}`);
+
+    const R = await fetch(`${process.env.API_BASE_URL}/api/v1/chat-messages/${assistanceChatMessageId}`, { method: "POST", body: data, headers: headers });
+    if (R.status >= 400) console.error(await R.json());
+};
+
 export async function POST(req: NextRequest) {
-    // return await myChatStream(req);
+    const reqData = await req.formData();
+    const assistanceChatMessageId = reqData.get("assistanceChatMessageId")?.toString() || "";
+
     // return await aiChatStream(req);
-    return await simulatedChatStream();
+    // return await myChatStream(req, assistanceChatMessageId);
+    return await simulatedChatStream(req, assistanceChatMessageId);
 }

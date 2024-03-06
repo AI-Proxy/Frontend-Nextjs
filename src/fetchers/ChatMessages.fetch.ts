@@ -3,7 +3,7 @@ import { cache } from "react";
 export interface ChatMessage {
     id: string;
     role: string;
-    content: string;
+    content: string | null;
     // TODO : add error states and error messages here to show errors in chat box
 }
 
@@ -36,5 +36,22 @@ export const getChatMessages = cache(async (mode: "server" | "client", chatId: s
     }
 
     const response: any = (await R.json().catch((e) => {})) || [];
+    return response;
+});
+
+export const createChatMessage = cache(async (promt: string, modelName: string, chatId: string): Promise<ChatMessage[]> => {
+    const data = new FormData();
+    data.append(
+        "chat_message",
+        JSON.stringify([
+            { role: "user", content: promt, model_name: modelName, chat_id: chatId },
+            { role: "assistance", content: "", model_name: modelName, chat_id: chatId },
+        ])
+    );
+
+    const R = await fetch("/api/v1/chat-messages", { method: "POST", body: data });
+    if (R.status >= 400) throw Error(`Couldn't create chat messages`, { cause: R.status });
+
+    const response: any = (await R.json().catch((e) => {})) || {};
     return response;
 });

@@ -6,7 +6,7 @@ import { signal } from "@preact/signals-react";
 import { useSignals } from "@preact/signals-react/runtime";
 import hljs from "highlight.js";
 import Message from "@/components/panel/chat/Message";
-import { ChatMessage, getChatMessages } from "@/fetchers/ChatMessages.fetch";
+import { ChatMessage, createChatMessage, getChatMessages } from "@/fetchers/ChatMessages.fetch";
 import { usePathname, useSearchParams } from "next/navigation";
 import PromtInput, { PromtInputHandle } from "@/components/panel/chat/PromtInput";
 import { useToast } from "@/hooks/UseToast";
@@ -61,7 +61,7 @@ const ChatMessages = ({ dir, initialMessages, chatId }: { dir: string; initialMe
     const loadMoreMessages = async (event: UIEvent) => {
         // TODO : after chat-message order bug fixed
         return;
-        
+
         if (event.currentTarget.scrollTop > 100) return;
         if (noMoreMessages.value) return;
         if (loadingMessages.value) return;
@@ -93,17 +93,23 @@ const ChatMessages = ({ dir, initialMessages, chatId }: { dir: string; initialMe
         if (!promt) return;
         promtInputRef.current?.clearInputArea();
 
+        let lastMessage = messages.value.at(-1);
+
+        // create chat-messages before hand
+        if (!initPromt) {
+            let error = false;
+            await createChatMessage(promt, "gpt-3.5-turbo-0125", chatId)
+                .then((r) => messages.value.push(...r))
+                .catch(() => (error = true));
+            if (error) return;
+            lastMessage = messages.value.at(-1);
+        }
+
         const data = new FormData();
         data.append("promt", promt);
-
-        // TODO : we might not need these... these added by creating a chat
-        // messages.value.push({ role: "user", content: promt });
-        // messages.value.push({ role: "assistance", content: "" });
-
-        // TODO : we need to request an endpoint to add 2 chat-messages before hand
-        // we cant add it ourselfs, cuase we need the id of thos messages
-
+        data.append("assistanceChatMessageId", lastMessage?.id || "");
         const response = await fetch("/api/chat", { method: "POST", body: data });
+
         if (response.status !== 200) {
             console.warn(response.statusText);
             // TODO : if there is an error with promt, set the last message error values
@@ -112,23 +118,19 @@ const ChatMessages = ({ dir, initialMessages, chatId }: { dir: string; initialMe
 
         const reader = response.body?.getReader();
         for await (const chunk of streamingFetch(reader)) {
-            const lastMessage = messages.value.at(-1);
             if (lastMessage) lastMessage.content += chunk;
             messages.value = [...messages.value];
             endOfMsgSpan.current?.scrollIntoView({ behavior: "instant" });
-            // if (scrollElement) scrollElement.scrollTo({ top: scrollElement.scrollHeight });
         }
 
-        setTimeout(() => {
-            endOfMsgSpan.current?.scrollIntoView({ behavior: "smooth" });
-        }, 100);
+        // setTimeout(() => endOfMsgSpan.current?.scrollIntoView({ behavior: "smooth" }), 100);
     }, []);
 
     useEffect(() => {
         messages.value = initialMessages;
 
         setTimeout(() => {
-            endOfMsgSpan.current?.scrollIntoView({ behavior: "auto" });
+            endOfMsgSpan.current?.scrollIntoView();
             last_scrollHeigth.value = scrollAreaRef.current?.querySelector("div")?.scrollHeight || 0;
         }, 50);
 
@@ -143,7 +145,7 @@ const ChatMessages = ({ dir, initialMessages, chatId }: { dir: string; initialMe
                 <div className="flex flex-col items-center gap-6 w-full h-full p-3" ref={messagesRef}>
                     <span hidden={!loadingMessages.value}>Loading More Messages...</span>
                     {messages.value.map((message, i) => (
-                        <Message text={message.content} role={message.role} key={i} />
+                        <Message text={message.content || ""} role={message.role} key={i} />
                     ))}
                     <span ref={endOfMsgSpan}></span>
                 </div>
