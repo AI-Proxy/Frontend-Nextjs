@@ -10,7 +10,7 @@ export interface ChatMessage {
 export const getChatMessages = cache(async (mode: "server" | "client", chatId: string, lastId?: number | string): Promise<ChatMessage[]> => {
     const UrlBase = mode === "server" ? process.env.API_BASE_URL : "";
     let requestInit: RequestInit = { method: "GET" };
-    let queryParams: string = `per_page=30&chat_id=${chatId}`;
+    let queryParams: string = `per_page=50&chat_id=${chatId}`;
 
     if (lastId) queryParams = `${queryParams}&last_id=${lastId}`;
 

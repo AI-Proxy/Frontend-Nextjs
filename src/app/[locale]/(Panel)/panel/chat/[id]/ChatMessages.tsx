@@ -43,7 +43,7 @@ hljs.addPlugin({
 const messages = signal<ChatMessage[]>([]);
 const loadingMessages = signal<boolean>(false);
 const noMoreMessages = signal<boolean>(false);
-const lastMessageId = signal<string>("");
+const topMessageId = signal<string>("");
 const last_scrollHeigth = signal<number>(0);
 
 const ChatMessages = ({ dir, initialMessages, chatId }: { dir: string; initialMessages: ChatMessage[]; chatId: string }) => {
@@ -59,9 +59,6 @@ const ChatMessages = ({ dir, initialMessages, chatId }: { dir: string; initialMe
     const scrollAreaRef = useRef<HTMLDivElement>(null);
 
     const loadMoreMessages = async (event: UIEvent) => {
-        // TODO : after chat-message order bug fixed
-        return;
-
         if (event.currentTarget.scrollTop > 100) return;
         if (noMoreMessages.value) return;
         if (loadingMessages.value) return;
@@ -70,7 +67,7 @@ const ChatMessages = ({ dir, initialMessages, chatId }: { dir: string; initialMe
         loadingMessages.value = true;
         let newItems: ChatMessage[] = [];
 
-        await getChatMessages("client", chatId, lastMessageId.value)
+        await getChatMessages("client", chatId, topMessageId.value)
             .then((list) => {
                 newItems = list;
                 if (!list.length) noMoreMessages.value = true;
@@ -79,7 +76,9 @@ const ChatMessages = ({ dir, initialMessages, chatId }: { dir: string; initialMe
                 toast({ title: "Whoops...", description: "Couldn't get chat messages", variant: "destructive" });
             });
         messages.value = [...newItems, ...messages.value];
-        lastMessageId.value = newItems.at(-1)?.id.toString() || "";
+        console.log({ newItems });
+
+        topMessageId.value = newItems.at(0)?.id.toString() || "";
         loadingMessages.value = false;
 
         const scrollDiff = Math.abs(last_scrollHeigth.value - currentTarget.scrollHeight);
@@ -122,12 +121,11 @@ const ChatMessages = ({ dir, initialMessages, chatId }: { dir: string; initialMe
             messages.value = [...messages.value];
             endOfMsgSpan.current?.scrollIntoView({ behavior: "instant" });
         }
-
-        // setTimeout(() => endOfMsgSpan.current?.scrollIntoView({ behavior: "smooth" }), 100);
     }, []);
 
     useEffect(() => {
         messages.value = initialMessages;
+        topMessageId.value = initialMessages.at(0)?.id.toString() || "";
 
         setTimeout(() => {
             endOfMsgSpan.current?.scrollIntoView();
