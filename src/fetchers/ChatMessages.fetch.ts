@@ -2,7 +2,7 @@ import { cache } from "react";
 
 export interface ChatMessage {
     id: string;
-    role: string;
+    role: "system" | "user" | "assistant" | "tool" | "function";
     content: string | null;
     // TODO : add error states and error messages here to show errors in chat box
 }
@@ -44,7 +44,7 @@ export const createChatMessage = cache(async (promt: string, modelName: string, 
     data.append(
         "chat_message",
         JSON.stringify([
-            { role: "user", content: promt, model_name: modelName, chat_id: chatId },
+            { role: "user", content: promt, model_name: modelName, chat_id: chatId, status_code: "200" },
             { role: "assistance", content: "", model_name: modelName, chat_id: chatId },
         ])
     );

@@ -32,8 +32,8 @@ const ModelInfo = ({ modelData }: { modelData: AiModel }) => {
         data.append(
             "chat_message",
             JSON.stringify([
-                { role: "system", content: "You are a helpful assistant.", model_name: modelData.model_name },
-                { role: "user", content: promt, model_name: modelData.model_name },
+                { role: "system", content: "You are a helpful assistant.", model_name: modelData.model_name, status_code: "200" },
+                { role: "user", content: promt, model_name: modelData.model_name, status_code: "200" },
                 { role: "assistance", content: "", model_name: modelData.model_name },
             ])
         );
@@ -47,8 +47,8 @@ const ModelInfo = ({ modelData }: { modelData: AiModel }) => {
         }
 
         // inject the new chat into chat list
-        chatList.dispatch({ type: "addNewChat", chatList: [{ list: [{ id: response.chat_id, name: chatName }], date: "Today" }] });
-        router.push(`/panel/chat/${response.chat_id}?promt=${promt}`);
+        chatList.dispatch({ type: "addNewChat", chatList: [{ list: [{ id: response.id, name: chatName }], date: "Today" }] });
+        router.push(`/panel/chat/${response.id}?promt=${promt}`);
     }, []);
 
     return (

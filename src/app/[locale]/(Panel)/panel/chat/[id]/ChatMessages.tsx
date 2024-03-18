@@ -97,7 +97,7 @@ const ChatMessages = ({ dir, initialMessages, chatId }: { dir: string; initialMe
         // create chat-messages before hand
         if (!initPromt) {
             let error = false;
-            await createChatMessage(promt, "gpt-3.5-turbo-0125", chatId)
+            await createChatMessage(promt, "gpt-3.5-turbo", chatId)
                 .then((r) => messages.value.push(...r))
                 .catch(() => (error = true));
             if (error) return;
@@ -107,6 +107,7 @@ const ChatMessages = ({ dir, initialMessages, chatId }: { dir: string; initialMe
         const data = new FormData();
         data.append("promt", promt);
         data.append("assistanceChatMessageId", lastMessage?.id || "");
+        data.append("chatId", chatId);
         const response = await fetch("/api/chat", { method: "POST", body: data });
 
         if (response.status !== 200) {
