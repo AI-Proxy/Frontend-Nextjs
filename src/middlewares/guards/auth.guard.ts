@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
-import { refreshAuthToken } from "@/lib/utils.server";
 
 export default async function main(req: NextRequest, res: NextResponse, routes: string[]): Promise<[boolean, NextResponse]> {
     const allowUserToViewPage = true;
@@ -36,13 +35,6 @@ export default async function main(req: NextRequest, res: NextResponse, routes: 
     if (expireTime < Date.now()) {
         res.cookies.delete("AuthToken");
         return [!allowUserToViewPage, res];
-    }
-
-    // make a call to refresh token if issue at passes 1 day
-    const limit: number = 60 * 60 * 24 * 1000; // 1 day
-    const issuedAt: number = (payload.iat || 0) * 1000;
-    if (Date.now() - limit > issuedAt) {
-        res = await refreshAuthToken(req, res);
     }
 
     return [allowUserToViewPage, res];

@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/UseToast";
 import { signal } from "@preact/signals-react";
 import { useSignals } from "@preact/signals-react/runtime";
 import Link from "next/link";
-import React, { useEffect } from "react";
+import React, { memo, useEffect } from "react";
 import { TbLoader } from "react-icons/tb";
 
 const modelsList = signal<AiModel[]>([]);
@@ -20,6 +20,8 @@ const ModelList = ({ listInitial }: { listInitial: AiModel[] }) => {
 
     useEffect(() => {
         modelsList.value = listInitial;
+        lastId.value = listInitial.at(-1)?.id.toString() || "";
+        noMoreData.value = false;
     }, []);
 
     const loadMore = async () => {
@@ -60,4 +62,4 @@ const ModelList = ({ listInitial }: { listInitial: AiModel[] }) => {
     );
 };
 
-export default ModelList;
+export default memo(ModelList);

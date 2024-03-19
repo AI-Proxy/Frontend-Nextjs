@@ -1,28 +1,63 @@
 "use client";
-import { ChatList as ChatListType } from "@/fetchers/fetch";
+import { Chat, getChatsList } from "@/fetchers/Chats.fetch";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { ScrollArea, ScrollBar } from "@/components/ui/ScrollArea";
-import { TbDots, TbPencil, TbTrash } from "react-icons/tb";
+import { TbDots, TbLoader, TbPencil, TbTrash } from "react-icons/tb";
 import { usePathname } from "next/navigation";
-import { useContext, useEffect } from "react";
+import { UIEvent, useContext, useEffect } from "react";
 import { ChatsContext } from "@/providers/ChatsContextProvider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover";
+import { signal } from "@preact/signals-react";
+import { useSignals } from "@preact/signals-react/runtime";
+import { useToast } from "@/hooks/UseToast";
 
-const ChatList = ({ chats }: { chats: ChatListType }) => {
+const lastId = signal<string>("");
+const noMoreData = signal<boolean>(false);
+const loading = signal<boolean>(false);
+
+const ChatList = ({ listInitial }: { listInitial: Chat[] }) => {
+    useSignals();
+
+    const { toast } = useToast();
     const pathname = usePathname();
     const chatsContext = useContext(ChatsContext);
-    let chatList = chats;
 
     useEffect(() => {
-        chatsContext.dispatch({ type: "setInitalChats", chatList: chats });
-        chatList = chatsContext.value;
+        chatsContext.dispatch({ type: "setInitalChats", chatList: listInitial });
+        lastId.value = listInitial.at(-1)?.list.at(-1)?.id.toString() || "";
+        noMoreData.value = false;
     }, []);
 
+    const loadMore = async (event: UIEvent) => {
+        const clientHeight = event.currentTarget.clientHeight;
+        const delta = Math.abs(event.currentTarget.scrollHeight - event.currentTarget.scrollTop);
+
+        if (clientHeight !== delta) return;
+        if (loading.value) return;
+        if (noMoreData.value) return;
+
+        loading.value = true;
+        let newItems: Chat[] = [];
+
+        await getChatsList("client", lastId.value)
+            .then((list) => {
+                newItems = list;
+                if (!list.length) noMoreData.value = true;
+            })
+            .catch((e) => {
+                toast({ title: "Whoops...", description: "Couldn't get the chat list", variant: "destructive" });
+            });
+
+        loading.value = false;
+        lastId.value = newItems.at(-1)?.list.at(-1)?.id.toString() || "";
+        chatsContext.dispatch({ type: "loadMoreChats", chatList: newItems });
+    };
+
     return (
-        <ScrollArea className="w-full my-1 pe-2 grow">
+        <ScrollArea className="w-full my-1 pe-2 grow" onScroll={loadMore}>
             <ul className="flex flex-col gap-5 w-full max-w-full">
-                {chatList.map((item, i) => (
+                {chatsContext.value.map((item, i) => (
                     <li className="flex flex-col gap-2 w-full" key={i}>
                         <small className="ms-2 opacity-60 text-xs">{item.date}</small>
                         <ul className="flex flex-col gap-0.5">
@@ -67,6 +102,7 @@ const ChatList = ({ chats }: { chats: ChatListType }) => {
                     </li>
                 ))}
             </ul>
+            <div className="flex flex-col items-center gap-1">{loading.value && <TbLoader className="animate-spin" size="1.25rem" />}</div>
         </ScrollArea>
     );
 };

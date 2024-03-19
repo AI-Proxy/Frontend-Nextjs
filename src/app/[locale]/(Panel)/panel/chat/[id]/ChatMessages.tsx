@@ -6,9 +6,10 @@ import { signal } from "@preact/signals-react";
 import { useSignals } from "@preact/signals-react/runtime";
 import hljs from "highlight.js";
 import Message from "@/components/panel/chat/Message";
-import { ChatMessages } from "@/fetchers/fetch";
+import { ChatMessage, createChatMessage, getChatMessages } from "@/fetchers/ChatMessages.fetch";
 import { usePathname, useSearchParams } from "next/navigation";
 import PromtInput, { PromtInputHandle } from "@/components/panel/chat/PromtInput";
+import { useToast } from "@/hooks/UseToast";
 
 // adds copy option for code blocks
 hljs.addPlugin({
@@ -39,14 +40,16 @@ hljs.addPlugin({
     },
 });
 
-const messages = signal<ChatMessages>([]);
+const messages = signal<ChatMessage[]>([]);
 const loadingMessages = signal<boolean>(false);
 const noMoreMessages = signal<boolean>(false);
+const topMessageId = signal<string>("");
 const last_scrollHeigth = signal<number>(0);
 
-const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMessages }) => {
+const ChatMessages = ({ dir, initialMessages, chatId }: { dir: string; initialMessages: ChatMessage[]; chatId: string }) => {
     useSignals();
 
+    const { toast } = useToast();
     const pathname = usePathname();
     const queryParams = useSearchParams();
 
@@ -62,24 +65,26 @@ const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMess
         const currentTarget = event.currentTarget;
 
         loadingMessages.value = true;
-        const newMessages = await getChatMessages();
-        messages.value = [...newMessages, ...messages.value];
+        let newItems: ChatMessage[] = [];
+
+        await getChatMessages("client", chatId, topMessageId.value)
+            .then((list) => {
+                newItems = list;
+                if (!list.length) noMoreMessages.value = true;
+            })
+            .catch((e) => {
+                toast({ title: "Whoops...", description: "Couldn't get chat messages", variant: "destructive" });
+            });
+        messages.value = [...newItems, ...messages.value];
+        console.log({ newItems });
+
+        topMessageId.value = newItems.at(0)?.id.toString() || "";
         loadingMessages.value = false;
 
         const scrollDiff = Math.abs(last_scrollHeigth.value - currentTarget.scrollHeight);
         if (scrollDiff > 200) currentTarget.scrollTo({ top: scrollDiff });
         else currentTarget.scrollTo({ top: last_scrollHeigth.value });
         last_scrollHeigth.value = currentTarget.scrollHeight;
-
-        // noMoreMessages.current = true;
-    };
-
-    const getChatMessages = async (): Promise<ChatMessages> => {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve(initialMessages);
-            }, 2000);
-        });
     };
 
     const submit = useCallback(async (initPromt?: string | null) => {
@@ -87,39 +92,44 @@ const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMess
         if (!promt) return;
         promtInputRef.current?.clearInputArea();
 
+        let lastMessage = messages.value.at(-1);
+
+        // create chat-messages before hand
+        if (!initPromt) {
+            let error = false;
+            await createChatMessage(promt, "gpt-3.5-turbo", chatId)
+                .then((r) => messages.value.push(...r))
+                .catch(() => (error = true));
+            if (error) return;
+            lastMessage = messages.value.at(-1);
+        }
+
         const data = new FormData();
         data.append("promt", promt);
-
-        // TODO : this does not have error handling
-        messages.value.push({ role: "user", content: promt });
-        messages.value.push({ role: "assistance", content: "" });
-        // const response = await fetch("/api/v-chat-response", { method: "POST", body: data });
+        data.append("assistantChatMessageId", lastMessage?.id || "");
+        data.append("chatId", chatId);
         const response = await fetch("/api/chat", { method: "POST", body: data });
+
         if (response.status !== 200) {
             console.warn(response.statusText);
+            // TODO : if there is an error with promt, set the last message error values
             return;
         }
+
         const reader = response.body?.getReader();
         for await (const chunk of streamingFetch(reader)) {
-            const lastMessage = messages.value.at(-1);
             if (lastMessage) lastMessage.content += chunk;
             messages.value = [...messages.value];
             endOfMsgSpan.current?.scrollIntoView({ behavior: "instant" });
-            // if (scrollElement) scrollElement.scrollTo({ top: scrollElement.scrollHeight });
         }
-        setTimeout(() => {
-            endOfMsgSpan.current?.scrollIntoView({ behavior: "smooth" });
-        }, 100);
-
-        // TODO : we might not need this
-        hljs.highlightAll();
     }, []);
 
     useEffect(() => {
         messages.value = initialMessages;
+        topMessageId.value = initialMessages.at(0)?.id.toString() || "";
 
         setTimeout(() => {
-            endOfMsgSpan.current?.scrollIntoView({ behavior: "auto" });
+            endOfMsgSpan.current?.scrollIntoView();
             last_scrollHeigth.value = scrollAreaRef.current?.querySelector("div")?.scrollHeight || 0;
         }, 50);
 
@@ -134,7 +144,7 @@ const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMess
                 <div className="flex flex-col items-center gap-6 w-full h-full p-3" ref={messagesRef}>
                     <span hidden={!loadingMessages.value}>Loading More Messages...</span>
                     {messages.value.map((message, i) => (
-                        <Message text={message.content} role={message.role} key={i} />
+                        <Message text={message.content || ""} role={message.role} key={i} />
                     ))}
                     <span ref={endOfMsgSpan}></span>
                 </div>
@@ -146,4 +156,4 @@ const Chat = ({ dir, initialMessages }: { dir: string; initialMessages: ChatMess
     );
 };
 
-export default memo(Chat);
+export default memo(ChatMessages);

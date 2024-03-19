@@ -9,12 +9,13 @@ import { Dancing_Script } from "next/font/google";
 import Link from "next/link";
 import { signal } from "@preact/signals-react";
 import { useSignals } from "@preact/signals-react/runtime";
+import { Skeleton } from "../ui/Skeleton";
 
 const dancingScript = Dancing_Script({ weight: "700", subsets: ["latin"] });
 
-const open = signal<boolean | null>(null);
+const open = signal<boolean | null>(true);
 
-const SideMenu = ({ chatListInitial }: { chatListInitial: Chat[] }) => {
+const SideMenu = () => {
     useSignals();
 
     const resizeHandler = (event: UIEvent) => {
@@ -77,7 +78,21 @@ const SideMenu = ({ chatListInitial }: { chatListInitial: Chat[] }) => {
                             </Button>
                         </div>
 
-                        <ChatList listInitial={chatListInitial} />
+                        <ul className="flex flex-col gap-5 w-full mt-6 grow">
+                            <li className="flex flex-col gap-2">
+                                <Skeleton className="w-full h-10 bg-background" />
+                                <Skeleton className="w-full h-10 bg-background" />
+                                <Skeleton className="w-full h-10 bg-background" />
+                            </li>
+                            <li className="flex flex-col gap-2">
+                                <Skeleton className="w-full h-10 bg-background" />
+                                <Skeleton className="w-full h-10 bg-background" />
+                            </li>
+                            <li className="flex flex-col gap-2">
+                                <Skeleton className="w-full h-10 bg-background" />
+                                <Skeleton className="w-full h-10 bg-background" />
+                            </li>
+                        </ul>
 
                         <div className="flex flex-col gap-1 w-full shrink-0">
                             <Button className="flex items-center justify-start gap-3 w-full h-16 p-3" variant="outline">
@@ -89,7 +104,7 @@ const SideMenu = ({ chatListInitial }: { chatListInitial: Chat[] }) => {
                             </Button>
                             <Button className="flex items-center justify-start gap-3 w-full h-12 p-2" variant="outline">
                                 <span className="w-8 h-8 rounded-full bg-blue-300"></span>
-                                <b className="">Kasra Keshvardoost</b>
+                                <b className=""></b>
                             </Button>
                         </div>
                     </div>

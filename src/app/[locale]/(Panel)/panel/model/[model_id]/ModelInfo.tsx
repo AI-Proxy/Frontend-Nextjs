@@ -9,7 +9,7 @@ import { ChatsContext } from "@/providers/ChatsContextProvider";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { memo, useCallback, useContext, useRef } from "react";
-import { TbAlertTriangle, TbArtboard } from "react-icons/tb";
+import { TbAlertTriangle } from "react-icons/tb";
 
 const ModelInfo = ({ modelData }: { modelData: AiModel }) => {
     const { toast } = useToast();
@@ -29,8 +29,14 @@ const ModelInfo = ({ modelData }: { modelData: AiModel }) => {
         data.append("name", chatName);
         data.append("model_name", modelData.model_name);
         data.append("ai_service_id", modelData.ai_service_id.toString());
-        data.append("chat_message", JSON.stringify({ role: "system", content: "You are a helpful assistant.", model_name: modelData.model_name }));
-        data.append("chat_message", JSON.stringify({ role: "user", content: promt, model_name: modelData.model_name }));
+        data.append(
+            "chat_message",
+            JSON.stringify([
+                { role: "system", content: "You are a helpful assistant.", model_name: modelData.model_name, status_code: "200" },
+                { role: "user", content: promt, model_name: modelData.model_name, status_code: "200" },
+                { role: "assistant", content: "", model_name: modelData.model_name },
+            ])
+        );
 
         const R = await fetch("/api/v1/chats", { method: "POST", body: data });
         const response: any = (await R.json().catch((e) => {})) || {};
@@ -41,8 +47,8 @@ const ModelInfo = ({ modelData }: { modelData: AiModel }) => {
         }
 
         // inject the new chat into chat list
-        chatList.dispatch({ type: "addChat", chatList: [{ list: [{ id: response.chat_id, name: chatName }], date: "Today" }] });
-        router.push(`/panel/chat/${response.chat_id}?promt=${promt}`);
+        chatList.dispatch({ type: "addNewChat", chatList: [{ list: [{ id: response.id, name: chatName }], date: "Today" }] });
+        router.push(`/panel/chat/${response.id}?promt=${promt}`);
     }, []);
 
     return (

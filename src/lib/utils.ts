@@ -12,9 +12,10 @@ export function sleep(miliseconds: number): Promise<void> {
 }
 
 export async function* streamingFetch(reader: any) {
+    const decoder = new TextDecoder();
     while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        yield new TextDecoder().decode(value);
+        yield decoder.decode(value);
     }
 }
