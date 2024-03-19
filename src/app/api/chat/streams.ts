@@ -9,10 +9,7 @@ import { getFilteredChatMessages, updateChatMessage } from "./fetchers";
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export const myChatStream = async (req: NextRequest, assistantChatMessageId: string, promt: string, chatId: string) => {
-    // TODO
     // query the laravel backend and get a list of non empty messages so that we can send them to gpt
-    // we can use the chat message listing and controll the message amount with per_page value
-
     const filteredChatMessages = await getFilteredChatMessages(req, chatId);
 
     const messages: OpenAI.ChatCompletionMessageParam[] = filteredChatMessages.map((v) => {
