@@ -22,7 +22,7 @@ const reducer = (state: Chat[], action: actionType) => {
             newState = [...state];
             break;
         case "addNewChat":
-            if (state[0].date === "Today") state[0].list.unshift(action.chatList[0].list[0]);
+            if (state[0]?.date === "Today") state[0].list.unshift(action.chatList[0].list[0]);
             else state.unshift({ date: "Today", list: action.chatList[0].list });
             newState = [...state];
             break;

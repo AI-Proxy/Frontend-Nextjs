@@ -6,12 +6,17 @@ import { Card } from "@/components/ui/Card";
 import { AiModel } from "@/fetchers/AiModels.fetch";
 import { useToast } from "@/hooks/UseToast";
 import { ChatsContext } from "@/providers/ChatsContextProvider";
+import { signal } from "@preact/signals-react";
+import { useSignals } from "@preact/signals-react/runtime";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { memo, useCallback, useContext, useRef } from "react";
 import { TbAlertTriangle } from "react-icons/tb";
 
+const creatingChat = signal<boolean>(false);
+
 const ModelInfo = ({ modelData }: { modelData: AiModel }) => {
+    useSignals();
     const { toast } = useToast();
 
     const router = useRouter();
@@ -21,6 +26,9 @@ const ModelInfo = ({ modelData }: { modelData: AiModel }) => {
     const submit = useCallback(async () => {
         const promt = promtInputRef.current?.textareaElement?.value.trim() || "";
         if (!promt) return;
+
+        if (creatingChat.value) return;
+        creatingChat.value = true;
 
         const chatName = promt.length > 100 ? promt.substring(0, 100) : promt;
 
@@ -42,6 +50,7 @@ const ModelInfo = ({ modelData }: { modelData: AiModel }) => {
         const response: any = (await R.json().catch((e) => {})) || {};
 
         if (R.status >= 400) {
+            creatingChat.value = false;
             toast({ title: "Whoops...", description: response.message ?? "Unknow Error", variant: "destructive" });
             return;
         }
