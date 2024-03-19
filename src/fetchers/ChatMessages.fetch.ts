@@ -45,7 +45,7 @@ export const createChatMessage = cache(async (promt: string, modelName: string, 
         "chat_message",
         JSON.stringify([
             { role: "user", content: promt, model_name: modelName, chat_id: chatId, status_code: "200" },
-            { role: "assistance", content: "", model_name: modelName, chat_id: chatId },
+            { role: "assistant", content: "", model_name: modelName, chat_id: chatId },
         ])
     );
 

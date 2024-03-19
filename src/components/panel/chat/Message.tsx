@@ -35,7 +35,7 @@ const Message = ({ text, role }: { text: string; role: string }) => {
         <div className={`flex items-start gap-2 w-full max-w-screen-md ${role === "user" ? "flex-row" : "flex-row-reverse"}`}>
             <span className={`sticky top-0 w-6 h-6 mt-1 rounded-full shrink-0 ${role === "user" ? "bg-blue-300" : "bg-emerald-300"}`}></span>
             <div className="flex flex-col items-start gap-2 w-full max-w-screen-sm">
-                <b className={`text-lg px-1 ${role === "user" ? "me-auto" : "ms-auto"}`}>{role === "user" ? "You" : "Assistance"}</b>
+                <b className={`text-lg px-1 ${role === "user" ? "me-auto" : "ms-auto"}`}>{role === "user" ? "You" : "Assistant"}</b>
                 <div
                     className={`markdown w-full border p-2 rounded-lg whitespace-break-spaces ${role === "user" ? "" : "bg-secondary"}`}
                     ref={markdownRef}

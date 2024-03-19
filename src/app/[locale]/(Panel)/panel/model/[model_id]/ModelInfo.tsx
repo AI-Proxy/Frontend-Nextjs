@@ -34,7 +34,7 @@ const ModelInfo = ({ modelData }: { modelData: AiModel }) => {
             JSON.stringify([
                 { role: "system", content: "You are a helpful assistant.", model_name: modelData.model_name, status_code: "200" },
                 { role: "user", content: promt, model_name: modelData.model_name, status_code: "200" },
-                { role: "assistance", content: "", model_name: modelData.model_name },
+                { role: "assistant", content: "", model_name: modelData.model_name },
             ])
         );
 

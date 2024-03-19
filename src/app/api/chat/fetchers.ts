@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 
 export const updateChatMessage = async (
     req: NextRequest,
-    assistanceChatMessageId: string,
+    assistantChatMessageId: string,
     AiResponse: string,
     sent?: boolean,
     statusCode?: string,
@@ -20,7 +20,7 @@ export const updateChatMessage = async (
     headers.set("accept", "application/json");
     headers.set("Authorization", `Bearer ${req.cookies.get("AuthToken")?.value}`);
 
-    const R = await fetch(`${process.env.API_BASE_URL}/api/v1/chat-messages/${assistanceChatMessageId}`, { method: "POST", body: data, headers: headers });
+    const R = await fetch(`${process.env.API_BASE_URL}/api/v1/chat-messages/${assistantChatMessageId}`, { method: "POST", body: data, headers: headers });
     if (R.status >= 400) console.error(await R.json());
 };
 

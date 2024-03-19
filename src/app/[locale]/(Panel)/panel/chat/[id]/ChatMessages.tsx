@@ -106,7 +106,7 @@ const ChatMessages = ({ dir, initialMessages, chatId }: { dir: string; initialMe
 
         const data = new FormData();
         data.append("promt", promt);
-        data.append("assistanceChatMessageId", lastMessage?.id || "");
+        data.append("assistantChatMessageId", lastMessage?.id || "");
         data.append("chatId", chatId);
         const response = await fetch("/api/chat", { method: "POST", body: data });
 

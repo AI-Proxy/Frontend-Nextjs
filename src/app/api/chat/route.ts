@@ -3,11 +3,11 @@ import { myChatStream } from "./streams";
 
 export async function POST(req: NextRequest) {
     const reqData = await req.formData();
-    const assistanceChatMessageId = reqData.get("assistanceChatMessageId")?.toString() || "";
+    const assistantChatMessageId = reqData.get("assistantChatMessageId")?.toString() || "";
     const promt = reqData.get("promt")?.toString() || "";
     const chatId = reqData.get("chatId")?.toString() || "";
 
     // return await aiChatStream(req);
-    // return await simulatedChatStream(req, assistanceChatMessageId, promt);
-    return await myChatStream(req, assistanceChatMessageId, promt, chatId);
+    // return await simulatedChatStream(req, assistantChatMessageId, promt);
+    return await myChatStream(req, assistantChatMessageId, promt, chatId);
 }

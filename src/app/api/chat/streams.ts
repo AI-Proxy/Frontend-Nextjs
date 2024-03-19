@@ -8,7 +8,7 @@ import { getFilteredChatMessages, updateChatMessage } from "./fetchers";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-export const myChatStream = async (req: NextRequest, assistanceChatMessageId: string, promt: string, chatId: string) => {
+export const myChatStream = async (req: NextRequest, assistantChatMessageId: string, promt: string, chatId: string) => {
     // TODO
     // query the laravel backend and get a list of non empty messages so that we can send them to gpt
     // we can use the chat message listing and controll the message amount with per_page value
@@ -29,7 +29,7 @@ export const myChatStream = async (req: NextRequest, assistanceChatMessageId: st
         .then((response) => (AiResponse = response))
         .catch(async (e) => {
             error = true;
-            await updateChatMessage(req, assistanceChatMessageId, "", true, e.status, e.code);
+            await updateChatMessage(req, assistantChatMessageId, "", true, e.status, e.code);
         });
 
     if (error) return new Response(null, { status: 400, statusText: "AI error" });
@@ -44,10 +44,10 @@ export const myChatStream = async (req: NextRequest, assistanceChatMessageId: st
                 controller.enqueue(msg);
             }
             controller.close();
-            await updateChatMessage(req, assistanceChatMessageId, content, true, "200");
+            await updateChatMessage(req, assistantChatMessageId, content, true, "200");
         },
         async cancel() {
-            await updateChatMessage(req, assistanceChatMessageId, content, true, "200");
+            await updateChatMessage(req, assistantChatMessageId, content, true, "200");
         },
     });
 
@@ -83,7 +83,7 @@ export const aiChatStream = async (req: NextRequest) => {
     return res;
 };
 
-export const simulatedChatStream = async (req: NextRequest, assistanceChatMessageId: string, promt: string) => {
+export const simulatedChatStream = async (req: NextRequest, assistantChatMessageId: string, promt: string) => {
     const rs = createReadStream("./src/app/api/chat/sample_response2.txt", { highWaterMark: 20 });
     let content = "";
 
@@ -96,7 +96,7 @@ export const simulatedChatStream = async (req: NextRequest, assistanceChatMessag
                 controller.enqueue(chunk);
             }
             controller.close();
-            await updateChatMessage(req, assistanceChatMessageId, content);
+            await updateChatMessage(req, assistantChatMessageId, content);
         },
         async cancel() {
             console.log("cancel");
